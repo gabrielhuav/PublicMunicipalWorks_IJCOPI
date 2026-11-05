@@ -19,6 +19,8 @@
       'muestra.id_entidad': 'Estado de México', 'muestra.cvemun': 'Temascaltepec',
       'filas.n': '{n} filas', primeras: 'Ver las primeras {n} filas', sql: 'Ver SQL',
       'motor.pg': 'PostgreSQL (almacén)', 'motor.duck': 'DuckDB sobre el lago',
+      'muestra.error': 'No se pudo cargar la muestra. Cierra y vuelve a abrir para reintentar.',
+      'sql.comandos': 'SQL y comandos para reproducir',
     },
     en: {
       titulo: 'Queries to the lake and the warehouse',
@@ -34,9 +36,19 @@
       'muestra.id_entidad': 'State of Mexico', 'muestra.cvemun': 'Temascaltepec',
       'filas.n': '{n} rows', primeras: 'Show the first {n} rows', sql: 'Show SQL',
       'motor.pg': 'PostgreSQL (warehouse)', 'motor.duck': 'DuckDB over the lake',
+      'muestra.error': 'The sample could not be loaded. Close and reopen to retry.',
+      'sql.comandos': 'SQL and commands to reproduce',
     },
   };
   const t = (k, v) => S.t(TXT, k, v);
+  const TITULOS = {
+    '01_resumen.pg.sql': ['Resumen por año', 'Summary by year'],
+    '02_municipios.duck.sql': ['Población y rezago municipal', 'Population and deprivation'],
+    '03_municipio_ciclo.pg.sql': ['Inversión y proyectos por municipio', 'Spending and projects by municipality'],
+    '04_cruce_cngmd_2022.duck.sql': ['Contratos: INEGI y SHCP', 'Contracts: INEGI and SHCP'],
+    '05_puntos_2024.duck.sql': ['Proyectos que aparecen en el mapa', 'Projects shown on the map'],
+    '06_detalle_2024.duck.sql': ['Ficha y evidencia de cada proyecto', 'Project details and evidence'],
+  };
   /* En español se usa el comentario de cada consulta; esto es su traducción. */
   const RESUMEN_EN = {
     '01_resumen.pg.sql': 'Summary by fiscal year of what the warehouse holds: states, municipalities, projects, amounts and how many projects each criterion flags. The criteria apply to investment projects only; they flag what to review and do not prove an irregularity.',
@@ -61,7 +73,7 @@
 
   function lago(ev) {
     const cab = [t('consulta'), t('filas'), 'SHA-256', t('igual'), 'PostgreSQL ms', 'p95', 'DuckDB ms', 'p95']
-      .map(x => `<th>${S.esc(x)}</th>`).join('');
+      .map(x => `<th scope="col">${S.esc(x)}</th>`).join('');
     const filas = Object.entries(ev.consultas).map(([k, r]) => `<tr><td>${S.esc(k)}</td>${celda(r.filas)}
       <td><code>${r.sha256.slice(0, 16)}…</code></td><td>${r.igual ? t('si') : t('no')}</td>
       ${celda(r.pg_ms)}${celda(r.pg_p95)}${celda(r.lago_ms)}${celda(r.lago_p95)}</tr>`).join('');
@@ -80,12 +92,11 @@
     const datos = c.particion ? `${c.datos}${MUESTRA[c.particion]}.json` : c.datos;
     const partes = c.particion ? ' · ' + t('archivos', { n: S.numero(c.archivos), col: t('col.' + c.particion), muestra: t('muestra.' + c.particion) }) : '';
     return `<section class="panel tarjeta">
-      <h2 class="mono">${S.esc(c.consulta)}</h2>
+      <h2>${S.esc((TITULOS[c.consulta] || [c.consulta, c.consulta])[S.idioma === 'en' ? 1 : 0])}</h2>
       <p>${S.esc(resumen)}</p>
       <p class="meta">${S.esc(t('motor.' + c.motor))} · ${S.esc(t('filas.n', { n: S.numero(c.filas) }))}${S.esc(partes)} · ${S.esc(man.generado_en)} · SHA-256 <code>${c.sha256_datos.slice(0, 16)}…</code></p>
-      <pre>${S.esc(cmd)}</pre>
       <details data-datos="${S.esc(datos)}"><summary>${S.esc(t('primeras', { n: Math.min(10, c.filas) }))}</summary><div class="tabla"></div></details>
-      <details><summary>${S.esc(t('sql'))}</summary><pre>${S.esc(c.sql)}</pre></details>
+      <details><summary>${S.esc(t('sql.comandos'))}</summary><p class="meta"><code>${S.esc(c.consulta)}</code></p><pre>${S.esc(cmd)}</pre><pre>${S.esc(c.sql)}</pre></details>
     </section>`;
   }
 
@@ -93,11 +104,20 @@
   function alAbrir(det) {
     det.addEventListener('toggle', async () => {
       const caja = det.querySelector('.tabla');
-      if (!det.open || caja.innerHTML) return;
-      const capa = await S.json('datos/' + det.dataset.datos);
-      const cab = capa.columnas.map(x => `<th>${S.esc(x)}</th>`).join('');
-      const cuerpo = capa.filas.slice(0, 10).map(f => `<tr>${f.map(celda).join('')}</tr>`).join('');
-      caja.innerHTML = `<table><thead><tr>${cab}</tr></thead><tbody>${cuerpo}</tbody></table>`;
+      if (!det.open || det.dataset.cargado === 'true' || caja.getAttribute('aria-busy') === 'true') return;
+      caja.setAttribute('aria-busy', 'true');
+      caja.textContent = t('cargando');
+      try {
+        const capa = await S.json('datos/' + det.dataset.datos);
+        const cab = capa.columnas.map(x => `<th scope="col">${S.esc(x)}</th>`).join('');
+        const cuerpo = capa.filas.slice(0, 10).map(f => `<tr>${f.map(celda).join('')}</tr>`).join('');
+        caja.innerHTML = `<table><thead><tr>${cab}</tr></thead><tbody>${cuerpo}</tbody></table>`;
+        det.dataset.cargado = 'true';
+      } catch (e) {
+        caja.textContent = t('muestra.error');
+      } finally {
+        caja.setAttribute('aria-busy', 'false');
+      }
     });
   }
 

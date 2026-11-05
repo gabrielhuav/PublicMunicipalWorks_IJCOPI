@@ -5,15 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Consultas al lago</title>
     <meta name="description" content="Las consultas SQL detrás del mapa del lago de obra pública y la comparación por hash entre el almacén PostgreSQL y el lago.">
-    <link rel="stylesheet" href="sitio.css">
-    <script src="comun.js"></script>
+    <link rel="stylesheet" href="sitio.css?v=20261105-ux2">
+    <script src="comun.js?v=20261105-ux2"></script>
 </head>
 <body>
 <header class="barra">
     <a class="marca" href="./"><span class="marca__sello" aria-hidden="true"></span><span class="marca__nombre" data-t="marca"></span></a>
     <button type="button" class="boton-barra barra__abrir" id="abrirMenu" aria-expanded="false" aria-controls="menuBarra" data-t="menu"></button>
     <div class="barra__menu" id="menuBarra">
-        <nav class="barra__nav" aria-label="Secciones">
+        <nav class="barra__nav" data-t-aria="nav.secciones">
             <a href="./" data-t="nav.mapa"></a>
             <a href="consultas.html" aria-current="page" data-t="nav.consultas"></a>
             <a href="https://github.com/gabrielhuav/PublicMunicipalWorks_IJCOPI" data-t="nav.repo"></a>
@@ -46,6 +46,6 @@
     <div id="lista"></div>
 </main>
 
-<script src="consultas.js"></script>
+<script src="consultas.js?v=20261105-ux2"></script>
 </body>
 </html>

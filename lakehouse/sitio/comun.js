@@ -7,6 +7,7 @@
   const TXT = {
     es: {
       marca: 'Obra pública federalizada',
+      'nav.secciones': 'Secciones',
       'nav.mapa': 'Mapa', 'nav.consultas': 'Consultas', 'nav.repo': 'Repositorio', idioma: 'EN', menu: 'Menú',
       'idioma.titulo': 'Read in English',
       'tema.titulo': 'Tema de color', 'tema.guinda': 'Guinda', 'tema.azul': 'Azul',
@@ -18,6 +19,7 @@
     },
     en: {
       marca: 'Federally funded public works',
+      'nav.secciones': 'Sections',
       'nav.mapa': 'Map', 'nav.consultas': 'Queries', 'nav.repo': 'Repository', idioma: 'ES', menu: 'Menu',
       'idioma.titulo': 'Leer en español',
       'tema.titulo': 'Colour theme', 'tema.guinda': 'Maroon', 'tema.azul': 'Blue',

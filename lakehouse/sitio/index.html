@@ -6,15 +6,15 @@
     <title>Obra pública federalizada</title>
     <meta name="description" content="Mapa del lago de datos de obra pública federalizada en México, 2020-2025, con datos oficiales de SHCP, INEGI y CONEVAL. Cada capa es el resultado de una consulta a la base de datos.">
     <link rel="stylesheet" href="vendor/leaflet-1.9.4.css">
-    <link rel="stylesheet" href="sitio.css">
-    <script src="comun.js"></script>
+    <link rel="stylesheet" href="sitio.css?v=20261105-ux2">
+    <script src="comun.js?v=20261105-ux2"></script>
 </head>
 <body class="app">
 <header class="barra">
     <a class="marca" href="./"><span class="marca__sello" aria-hidden="true"></span><span class="marca__nombre" data-t="marca"></span></a>
     <button type="button" class="boton-barra barra__abrir" id="abrirMenu" aria-expanded="false" aria-controls="menuBarra" data-t="menu"></button>
     <div class="barra__menu" id="menuBarra">
-        <nav class="barra__nav" aria-label="Secciones">
+        <nav class="barra__nav" data-t-aria="nav.secciones">
             <a href="./" aria-current="page" data-t="nav.mapa"></a>
             <a href="consultas.html" data-t="nav.consultas"></a>
             <a href="https://github.com/gabrielhuav/PublicMunicipalWorks_IJCOPI" data-t="nav.repo"></a>
@@ -42,31 +42,54 @@
 
     <button type="button" id="abrirPanel" class="boton-flotante" aria-controls="panel" aria-expanded="false" data-t="panel.abrir"></button>
 
-    <aside id="panel" class="panel-lateral" aria-label="Capas y filtros">
+    <aside id="panel" class="panel-lateral" data-t-aria="panel.abrir">
+        <div class="exploracion">
+        <p class="exploracion__ambito" data-t="panel.ambito"></p>
         <div class="panel-lateral__cabecera">
-            <h1 data-t="titulo"></h1>
+            <h1 data-t="panel.titulo"></h1>
             <button type="button" id="cerrarPanel" class="cerrar" data-t-aria="panel.cerrar">×</button>
         </div>
-        <p class="lema" data-t="lema"></p>
+        <p class="lema" data-t="panel.guia"></p>
+        </div>
+        <div class="exploracion__navegacion">
+        <div class="exploracion__meta"><span data-t="panel.vistas"></span><button type="button" id="vistaNacional" class="enlace-boton" data-t="panel.nacional"></button></div>
+        <div class="vistas" role="group" data-t-aria="panel.vistas">
+            <button type="button" id="vistaMunicipios" aria-controls="seccionMunicipios" aria-pressed="true" data-t="s.municipios"></button>
+            <button type="button" id="vistaProyectos" aria-controls="seccionProyectos" aria-pressed="false" data-t="s.proyectos"></button>
+        </div>
+        </div>
 
-        <section class="seccion">
+        <section class="seccion" id="seccionProyectos" hidden>
             <h2 data-t="s.proyectos"></h2>
             <label for="estadoObras" data-t="c.estado"></label>
             <select id="estadoObras"></select>
             <p id="estadoObrasNota" class="nota" data-t="c.estado.nota"></p>
+            <p class="nota" data-t="c.proyectos.nota"></p>
             <div id="filtros" hidden>
+                <div class="resultados">
+                    <p id="filtroConteo" class="conteo" role="status" aria-live="polite"></p>
+                    <div id="filtrosActivos" class="filtros-activos" data-t-aria="f.activos" role="group" hidden></div>
+                    <p id="sinResultados" class="nota" data-t="f.vacio" hidden></p>
+                    <div class="resultados__acciones">
+                        <button type="button" class="boton-principal" id="verFiltrados" data-t="f.ver" hidden></button>
+                        <button type="button" class="enlace-boton" id="restablecerFiltros" data-t="f.restablecer" hidden></button>
+                    </div>
+                </div>
                 <p class="subtitulo" data-t="f.estatus"></p>
                 <div id="filtrosEstatus" class="fichas"></div>
+                <details id="filtrosAdicionales" class="filtros-adicionales">
+                <summary data-t="f.mas"></summary>
                 <p class="subtitulo" data-t="f.evidencia"></p>
                 <div id="filtrosEvidencia" class="fichas"></div>
                 <p class="subtitulo" data-t="f.revision"></p>
                 <div class="fichas"><button type="button" id="soloMarcas" class="ficha" aria-pressed="false" data-t="f.marcas"></button></div>
-                <p id="filtroConteo" class="conteo"></p>
-                <button type="button" class="enlace-boton" id="verFiltrados" data-t="f.ver" hidden></button>
+                <p class="nota" data-t="f.combinar"></p>
+                </details>
+                <p id="filtroUbicacion" class="nota" hidden></p>
             </div>
         </section>
 
-        <section class="seccion">
+        <section class="seccion" id="seccionMunicipios">
             <h2 data-t="s.municipios"></h2>
             <label for="indicador" data-t="c.indicador"></label>
             <select id="indicador"></select>
@@ -80,10 +103,11 @@
             <div id="leyenda"></div>
         </section>
 
-        <section class="seccion">
+        <details class="seccion resumen-nacional">
+            <summary id="resumenNacional"></summary>
             <ul class="conteos" id="conteos"></ul>
             <button type="button" class="enlace-boton" id="temascaltepec" data-t="c.temascaltepec"></button>
-        </section>
+        </details>
 
         <details class="seccion origen">
             <summary data-t="o.titulo"></summary>
@@ -123,6 +147,6 @@
 
 <script src="vendor/leaflet-1.9.4.js"></script>
 <script src="mapa-teselas.js"></script>
-<script src="mapa.js"></script>
+<script src="mapa.js?v=20261105-ux2"></script>
 </body>
 </html>

@@ -14,6 +14,10 @@
   const TXT = {
     es: {
       titulo: 'Obra pública federalizada en México, 2020-2025',
+      'panel.titulo': 'Explora la obra pública', 'panel.ambito': 'México · datos oficiales',
+      'panel.guia': 'Compara municipios o revisa los proyectos de un estado.',
+      'panel.nacional': '← Vista nacional', 'panel.vistas': 'Qué quieres explorar',
+      'n.resumen': 'Resumen nacional · {c}',
       lema: 'Registros oficiales de SHCP, INEGI y CONEVAL en un lago de datos. Cada capa es el resultado de una consulta a la base de datos.',
       'mapa.region': 'Mapa', 'panel.abrir': 'Capas y filtros', 'panel.cerrar': 'Cerrar el panel',
       'b.placeholder': 'Busca un lugar, municipio, proyecto o folio', 'b.lugares': 'Lugares',
@@ -24,10 +28,17 @@
       'c.indicador': 'Indicador', 'c.ciclo': 'Ciclo', 'c.estado': 'Estado',
       'c.estado.elige': 'Elige un estado…',
       'c.estado.nota': 'Elige un estado, busca un lugar o acércate en el mapa: los proyectos se cargan por estado.',
+      'c.proyectos.nota': 'Los proyectos corresponden a 2024. El año de la vista Municipios no cambia estos puntos.',
       'c.temascaltepec': 'Ejemplo: Temascaltepec, el municipio del capítulo',
       'f.estatus': 'Estatus', 'f.evidencia': 'Evidencia verificable', 'f.revision': 'Revisión',
       'f.marcas': 'Con alguna marca C1 a C4', 'f.conteo': 'Se ven {n} de {total} proyectos de {estado}.',
-      'f.ver': 'Acercar el mapa a estos proyectos',
+      'f.ver': 'Centrar resultados',
+      'f.activos': 'Filtros activos', 'f.mas': 'Evidencia y revisión',
+      'f.sin': 'Sin {estatus}', 'f.quitar': 'Quitar filtro: {filtro}',
+      'f.vacio': 'No hay puntos visibles con esta selección. Quita un filtro o elige otro estado.',
+      'f.combinar': 'Si eliges varias evidencias, el proyecto debe cumplir todas.',
+      'f.restablecer': 'Restablecer filtros',
+      'f.ubicacion': '{n} registros que cumplen los filtros no se dibujan: su cabecera municipal más cercana está en otro estado. Es una aproximación, no una validación de límites administrativos.',
       'e.0': 'Terminado', 'e.1': 'En ejecución', 'e.2': 'Cancelado', 'e.3': 'Otro estatus',
       'ev.1': 'Con documentos', 'ev.2': 'Con PDF', 'ev.4': 'Con imagen', 'ev.8': 'Con antes y después',
       'ev.16': 'Con Street View antes y después',
@@ -84,6 +95,10 @@
     },
     en: {
       titulo: 'Federally funded public works in Mexico, 2020-2025',
+      'panel.titulo': 'Explore public works', 'panel.ambito': 'Mexico · official records',
+      'panel.guia': 'Compare municipalities or review projects in one state.',
+      'panel.nacional': '← National view', 'panel.vistas': 'What to explore',
+      'n.resumen': 'National summary · {c}',
       lema: 'Official records from SHCP, INEGI and CONEVAL in a data lake. Every layer is the result of a query to the database.',
       'mapa.region': 'Map', 'panel.abrir': 'Layers and filters', 'panel.cerrar': 'Close the panel',
       'b.placeholder': 'Search a place, municipality, project or folio', 'b.lugares': 'Places',
@@ -94,10 +109,17 @@
       'c.indicador': 'Indicator', 'c.ciclo': 'Fiscal year', 'c.estado': 'State',
       'c.estado.elige': 'Choose a state…',
       'c.estado.nota': 'Choose a state, search a place or zoom in on the map: projects load one state at a time.',
+      'c.proyectos.nota': 'Projects are from 2024. Changing the year in Municipalities does not change these points.',
       'c.temascaltepec': "Example: Temascaltepec, the chapter's municipality",
       'f.estatus': 'Status', 'f.evidencia': 'Verifiable evidence', 'f.revision': 'Review',
       'f.marcas': 'With a C1 to C4 flag', 'f.conteo': 'Showing {n} of {total} projects in {estado}.',
-      'f.ver': 'Zoom the map to these projects',
+      'f.ver': 'Zoom to results',
+      'f.activos': 'Active filters', 'f.mas': 'Evidence and review',
+      'f.sin': 'Exclude {estatus}', 'f.quitar': 'Remove filter: {filtro}',
+      'f.vacio': 'No visible points match this selection. Remove a filter or choose another state.',
+      'f.combinar': 'When you select several evidence types, a project must match all of them.',
+      'f.restablecer': 'Reset filters',
+      'f.ubicacion': '{n} records matching the filters are not drawn: their nearest municipal seat is in another state. This is an approximation, not a check against administrative boundaries.',
       'e.0': 'Completed', 'e.1': 'In progress', 'e.2': 'Cancelled', 'e.3': 'Other status',
       'ev.1': 'With documents', 'ev.2': 'With PDF', 'ev.4': 'With image', 'ev.8': 'With before and after',
       'ev.16': 'With Street View before and after',
@@ -210,6 +232,7 @@
   const categorias = ind => (ind.ordinal ? GRADOS.map((g, i) => [g, GRADOS_EN[g], seq()[i]]) : ind.categorias);
 
   const lista = (p, todos) => {
+    if (p === 'estatus' && q.get(p) === 'ninguno') return new Set();
     const v = (q.get(p) || '').split(',').filter(Boolean).map(Number).filter(x => todos.includes(x));
     return new Set(v.length ? v : (p === 'estatus' ? todos : []));
   };
@@ -220,6 +243,7 @@
     estatus: lista('estatus', [0, 1, 2, 3]),
     evidencia: lista('evidencia', EVIDENCIAS),
     soloMarcas: q.get('marcas') === '1',
+    vista: q.get('estado') || q.get('capa') === 'proyectos' ? 'proyectos' : 'municipios',
   };
   const datos = {};
   const puntosPorEstado = new Map(), detallesPorMunicipio = new Map();
@@ -235,7 +259,8 @@
     poner('ind', estado.ind.id);
     poner('ciclo', estado.ciclo);
     poner('estado', estado.entidad || null);
-    poner('estatus', estado.estatus.size < 4 ? [...estado.estatus].join(',') : null);
+    poner('capa', estado.vista === 'proyectos' ? 'proyectos' : null);
+    poner('estatus', !estado.estatus.size ? 'ninguno' : estado.estatus.size < 4 ? [...estado.estatus].join(',') : null);
     poner('evidencia', estado.evidencia.size ? [...estado.evidencia].join(',') : null);
     poner('marcas', estado.soloMarcas ? '1' : null);
     poner('folio', abierto && abierto.folio ? abierto.folio : null);
@@ -342,6 +367,7 @@
 
   function conteos() {
     const r = datos.resumen.get(estado.ciclo);
+    sitio('resumenNacional').textContent = t('n.resumen', { c: estado.ciclo });
     const li = (k, v) => `<li><span>${S.esc(t(k))}</span><b>${S.esc(v)}</b></li>`;
     sitio('conteos').innerHTML = `<li><b>${S.esc(t('n.ciclo', { c: estado.ciclo }))}</b></li>`
       + li('n.entidades', S.numero(r.entidades)) + li('n.municipios', S.numero(r.municipios))
@@ -446,19 +472,25 @@
   }
 
   /* "Elige un estado…" vuelve a la vista de municipios. */
-  function quitarEstado() {
+  function quitarEstado(vista = 'municipios') {
+    if (abierto && abierto.folio) { cerrarComparar(); cerrarCajon(); }
     ++pedido;
     estado.entidad = 0;
     if (capaPuntos) mapa.removeLayer(capaPuntos);
     capaPuntos = null;
     puntos = [];
+    cargando('');
+    sitio('estadoObras').setAttribute('aria-busy', 'false');
     sitio('filtros').hidden = true;
     sitio('estadoObras').value = 0;
+    cambiarVista(vista);
     pintarMunicipios();
   }
 
   async function cargarEstado(id, encuadrar) {
-    if (!id) return quitarEstado();
+    if (!id) return quitarEstado('proyectos');
+    cambiarVista('proyectos');
+    if (abierto && abierto.entidad !== id) { cerrarComparar(); cerrarCajon(); }
     if (encuadrar) {
       const e = datos.estados.get(id);
       mapa.fitBounds([[e.sur, e.oeste], [e.norte, e.este]], Object.assign({ maxZoom: 10 }, margenes(), SIN_ANIMAR));
@@ -467,16 +499,24 @@
     estado.entidad = id;
     sitio('estadoObras').value = id;
     const mio = ++pedido;
+    if (capaPuntos) mapa.removeLayer(capaPuntos);
+    capaPuntos = null;
+    puntos = [];
+    sitio('filtros').hidden = true;
+    sitio('estadoObras').setAttribute('aria-busy', 'true');
+    pintarMunicipios();
     cargando(t('cargandoEstado', { estado: nombreEstado(id) }));
     let lista;
     try {
       lista = await puntosDe(id);
     } catch (e) {
+      if (mio !== pedido) return;
+      sitio('estadoObras').setAttribute('aria-busy', 'false');
       cargando(t('error', { msg: e.message }));
-      setTimeout(() => cargando(''), 4000);
       return;
     }
     if (mio !== pedido) return;
+    sitio('estadoObras').setAttribute('aria-busy', 'false');
     cargando('');
     if (capaPuntos) mapa.removeLayer(capaPuntos);
     capaPuntos = L.layerGroup().addTo(mapa);
@@ -494,11 +534,48 @@
   function filtrar() {
     if (!capaPuntos) return;
     capaPuntos.clearLayers();
-    let n = 0;
-    puntos.forEach(p => { if (visible(p)) { if (!p.fuera) p.m.addTo(capaPuntos); n++; } });
+    let n = 0, omitidos = 0;
+    puntos.forEach(p => {
+      if (!visible(p)) return;
+      if (p.fuera) { omitidos++; return; }
+      p.m.addTo(capaPuntos);
+      n++;
+    });
     sitio('filtroConteo').textContent = t('f.conteo', { n: S.numero(n), total: S.numero(puntos.length), estado: nombreEstado(estado.entidad) });
+    sitio('filtroUbicacion').hidden = !omitidos;
+    sitio('filtroUbicacion').textContent = omitidos ? t('f.ubicacion', { n: S.numero(omitidos) }) : '';
+    sitio('restablecerFiltros').hidden = estado.estatus.size === 4 && !estado.evidencia.size && !estado.soloMarcas;
+    sitio('sinResultados').hidden = !!n;
+    filtrosActivos();
     sitio('verFiltrados').hidden = !n;
     setUrl();
+  }
+
+  function filtrosActivos() {
+    const filtros = [];
+    [0, 1, 2, 3].forEach(g => {
+      if (!estado.estatus.has(g)) filtros.push(['estatus', g, t('f.sin', { estatus: t('e.' + g) })]);
+    });
+    estado.evidencia.forEach(v => filtros.push(['evidencia', v, t('ev.' + v)]));
+    if (estado.soloMarcas) filtros.push(['marcas', 1, t('f.marcas')]);
+    const caja = sitio('filtrosActivos');
+    caja.hidden = !filtros.length;
+    caja.innerHTML = filtros.map(([tipo, valor, etiqueta]) => `<button type="button" data-filtro="${tipo}" data-valor="${valor}" aria-label="${S.esc(t('f.quitar', { filtro: etiqueta }))}">${S.esc(etiqueta)} <span aria-hidden="true">×</span></button>`).join('');
+  }
+
+  function cambiarVista(vista) {
+    if (estado.vista !== vista) sitio('panel').scrollTop = 0;
+    estado.vista = vista;
+    const proyectos = vista === 'proyectos';
+    sitio('seccionProyectos').hidden = !proyectos;
+    sitio('seccionMunicipios').hidden = proyectos;
+    sitio('seccionLeyenda').hidden = proyectos && !document.body.classList.contains('figura');
+    sitio('vistaMunicipios').setAttribute('aria-pressed', String(!proyectos));
+    sitio('vistaProyectos').setAttribute('aria-pressed', String(proyectos));
+    if (capaMunicipios) {
+      if (proyectos && !document.body.classList.contains('figura')) mapa.removeLayer(capaMunicipios);
+      else if (!mapa.hasLayer(capaMunicipios)) capaMunicipios.addTo(mapa);
+    }
   }
 
   /* Encuadra los proyectos que dejan los filtros: con pocos, sueltos en el estado, cuesta hallarlos. */
@@ -572,7 +649,7 @@
     const r = datos.porCiclo.get(cvemun + '|' + estado.ciclo);
     const x = datos.cruce.get(cvemun);
     const id = Number(cvemun.slice(0, 2));
-    abierto = { cvemun: null };
+    abierto = { cvemun: null, entidad: id };
     resaltar(m.lat == null ? null : [m.lat, m.lon]);
     let html = `<h2>${S.esc(m.municipio)}</h2><p class="sub">${S.esc(m.entidad)} · ${S.esc(cvemun)}</p>`
       + '<div class="cifras">' + cifra('d.pob', S.numero(m.pobtot))
@@ -643,7 +720,7 @@
   }
 
   async function abrirProyecto(p) {
-    abierto = { cvemun: p.cvemun, folio: p.folio };
+    abierto = { cvemun: p.cvemun, folio: p.folio, entidad: p.entidad };
     resaltar([p.lat, p.lon]);
     abrirCajon(cabeceraProyecto(p) + `<p class="nota">${S.esc(t('d.cargando'))}</p><div class="esqueleto"></div><div class="esqueleto"></div>`);
     origen();
@@ -978,7 +1055,7 @@
     } else if (s.tipo === 'municipio') {
       abrirMunicipio(s.m.cvemun);
       ir([s.m.lat, s.m.lon], 12);
-      cargarEstado(Number(s.m.cvemun.slice(0, 2)));
+      if (estado.vista === 'proyectos') cargarEstado(Number(s.m.cvemun.slice(0, 2)));
     } else if (s.tipo === 'proyecto') {
       mostrarProyecto(s.p);
     } else {
@@ -987,7 +1064,7 @@
           : /town|city|locality|municipality/.test(s.clase || '') ? 13 : /county|district/.test(s.clase || '') ? 11
             : /state|region/.test(s.clase || '') ? 8 : 14;
       ir([s.lat, s.lon], z);
-      cargarEstado(estadoEn(s.lat, s.lon));
+      if (estado.vista === 'proyectos') cargarEstado(estadoEn(s.lat, s.lon));
     }
   }
 
@@ -1006,9 +1083,40 @@
   function cerrarPanel() {
     sitio('panel').classList.remove('abierto');
     sitio('abrirPanel').setAttribute('aria-expanded', 'false');
+    accesoPanel();
+  }
+
+  function accesoPanel() {
+    const panel = sitio('panel');
+    const cerrado = window.innerWidth <= 760 && !panel.classList.contains('abierto');
+    if (cerrado && panel.contains(document.activeElement)) sitio('abrirPanel').focus({ preventScroll: true });
+    panel.inert = cerrado;
   }
 
   function controles() {
+    const navegacion = document.querySelector('.exploracion__navegacion');
+    const medirNavegacion = () => sitio('panel').style.setProperty('--alto-navegacion', `${navegacion.offsetHeight}px`);
+    if (window.ResizeObserver) new ResizeObserver(medirNavegacion).observe(navegacion);
+    medirNavegacion();
+    cambiarVista(estado.vista);
+    sitio('vistaMunicipios').addEventListener('click', () => { cerrarComparar(); cerrarCajon(); quitarEstado(); });
+    sitio('vistaProyectos').addEventListener('click', () => { cambiarVista('proyectos'); setUrl(); });
+    sitio('vistaNacional').addEventListener('click', () => {
+      cerrarComparar(); cerrarCajon(); quitarEstado(); cerrarPanel();
+      mapa.fitBounds([[14.5, -117.3], [32.7, -86.7]], Object.assign({}, margenes(), SIN_ANIMAR));
+    });
+    sitio('filtrosActivos').addEventListener('click', ev => {
+      const b = ev.target.closest('button[data-filtro]');
+      if (!b) return;
+      if (b.dataset.filtro === 'estatus') estado.estatus.add(Number(b.dataset.valor));
+      if (b.dataset.filtro === 'evidencia') estado.evidencia.delete(Number(b.dataset.valor));
+      if (b.dataset.filtro === 'marcas') estado.soloMarcas = false;
+      pintarFiltros(); filtrar();
+      (sitio('filtrosActivos').querySelector('button') || sitio('estadoObras')).focus({ preventScroll: true });
+    });
+    if (estado.evidencia.size || estado.soloMarcas) sitio('filtrosAdicionales').open = true;
+    window.addEventListener('resize', accesoPanel);
+    accesoPanel();
     const sel = sitio('indicador');
     sel.innerHTML = INDICADORES.map(i => `<option value="${i.id}">${S.esc(en ? i.en : i.es)}</option>`).join('');
     sel.value = estado.ind.id;
@@ -1028,6 +1136,13 @@
     selEstado.addEventListener('change', () => cargarEstado(Number(selEstado.value), true));
 
     sitio('verFiltrados').addEventListener('click', verFiltrados);
+    sitio('restablecerFiltros').addEventListener('click', () => {
+      estado.estatus = new Set([0, 1, 2, 3]);
+      estado.evidencia.clear();
+      estado.soloMarcas = false;
+      pintarFiltros();
+      filtrar();
+    });
     sitio('soloMarcas').addEventListener('click', () => {
       estado.soloMarcas = !estado.soloMarcas;
       sitio('soloMarcas').setAttribute('aria-pressed', String(estado.soloMarcas));
@@ -1037,7 +1152,7 @@
       const m = datos.municipios.get('15086');
       abrirMunicipio('15086');
       ir([m.lat, m.lon], 12);
-      cargarEstado(15);
+      if (estado.vista === 'proyectos') cargarEstado(15);
     });
 
     const caja = sitio('buscar');
@@ -1067,6 +1182,7 @@
       const abrir = !p.classList.contains('abierto');
       p.classList.toggle('abierto', abrir);
       sitio('abrirPanel').setAttribute('aria-expanded', String(abrir));
+      accesoPanel();
     });
     sitio('cerrarPanel').addEventListener('click', cerrarPanel);
     sitio('cerrarDetalle').addEventListener('click', cerrarCajon);
@@ -1146,7 +1262,7 @@
     mapa.on('moveend', () => {
       clearTimeout(relojAuto);
       relojAuto = setTimeout(() => {
-        if (mapa.getZoom() < 9) return;
+        if (estado.vista !== 'proyectos' || mapa.getZoom() < 9) return;
         const c = mapa.getCenter();
         const id = estadoEn(c.lat, c.lng);
         if (id && id !== estado.entidad) cargarEstado(id);
