@@ -7,6 +7,14 @@ Conference on Ontologies and Knowledge Graphs (ICOKG 2026)**, prepared for the s
 - **Map → <https://gabrielhuav.github.io/PublicMunicipalWorks_IJCOPI/>**
 - **Queries → <https://gabrielhuav.github.io/PublicMunicipalWorks_IJCOPI/consultas.html>**
 
+## Word manuscript
+
+The current review manuscript and its frozen comparison base are in
+[`paper/ijcopi/`](paper/ijcopi/README.md). The current version is
+[`Paper37_IJCOPI_v1_extendida.docx`](paper/ijcopi/Paper37_IJCOPI_v1_extendida.docx).
+These Word files travel with a Git clone. Their generator remains in the original
+`PublicMunicipalWorks_DWH` project, on branch `ijcopi-obras`. They are not part of the Pages site.
+
 The conference version is unchanged in
 [`gabrielhuav/PublicMunicipalWorks_DWH`](https://github.com/gabrielhuav/PublicMunicipalWorks_DWH), with its
 demonstration at <https://gabrielhuav.github.io/PublicMunicipalWorks_DWH/>. That demonstration runs on
