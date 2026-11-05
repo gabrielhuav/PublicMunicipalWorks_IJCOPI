@@ -166,6 +166,8 @@
     ['ambas en cero', 'both at zero', '#b5a99f'],
   ];
   const ESTATUS = ['#2e7d32', '#1565c0', '#c62828', '#7a7a7a'];
+  const ESTATUS_OSCURO = ['#81c784', '#64b5f6', '#ff8a80', '#c4c9d1'];
+  const colorEstatus = g => (S.oscuro() ? ESTATUS_OSCURO : ESTATUS)[g];
   const EVIDENCIAS = [1, 2, 4, 8, 16];
   const IMAGEN = /\.(jpe?g|png|gif|webp)(\?|$)/i;
   const seq = () => [1, 2, 3, 4, 5].map(i => S.color(`--seq-${i}`));
@@ -285,7 +287,7 @@
     const b = categorias(ind) ? [] : cortes([...datos.municipios.keys()].map(k => valor(ind, k)));
     const borde = S.color('--borde-punto');
     /* Con un estado cargado, los municipios pasan a segundo plano para que se vean los proyectos. */
-    const opacidad = estado.entidad ? 0.3 : 0.85;
+    const opacidad = estado.entidad ? (S.oscuro() ? 0.5 : 0.3) : 0.85;
     capaMunicipios.eachLayer(m => {
       if (estado.entidad && Number(m.cvemun.slice(0, 2)) !== estado.entidad) {
         m.setStyle({ fillOpacity: 0, opacity: 0 });
@@ -320,7 +322,7 @@
     filas.push(`<p class="nota">${S.esc(t('ley.tam'))}</p>`);
     if (estado.entidad) {
       filas.push(`<p class="subtitulo">${S.esc(t('ley.obras', { estado: nombreEstado(estado.entidad) }))}</p>`);
-      [0, 1, 2, 3].forEach(g => item(ESTATUS[g], t('e.' + g)));
+      [0, 1, 2, 3].forEach(g => item(colorEstatus(g), t('e.' + g)));
     }
     sitio('leyenda').innerHTML = filas.join('');
   }
@@ -431,7 +433,7 @@
           if (sv[p.folio]) p.evidencia |= 16;
           p.fuera = estadoEn(p.lat, p.lon) !== id;
           p.m = L.circleMarker([p.lat, p.lon], { pane: 'obras', radius: radioPuntos(), weight: 0.8, color: S.oscuro() ? '#111' : '#fff',
-            fillColor: ESTATUS[p.g], fillOpacity: 0.92 });
+            fillColor: colorEstatus(p.g), fillOpacity: 0.92 });
           p.m.on('click', () => abrirProyecto(p));
           p.busqueda = normal(`${p.nombre} ${p.folio} ${(datos.municipios.get(p.cvemun) || {}).municipio || ''}`);
           return p;
@@ -522,7 +524,7 @@
       if (p.marcas > 0) conMarca++;
     });
     const cajaE = sitio('filtrosEstatus');
-    cajaE.innerHTML = [0, 1, 2, 3].map(g => ficha(t('e.' + g), porEstatus[g], estado.estatus.has(g), ESTATUS[g])).join('');
+    cajaE.innerHTML = [0, 1, 2, 3].map(g => ficha(t('e.' + g), porEstatus[g], estado.estatus.has(g), colorEstatus(g))).join('');
     cajaE.querySelectorAll('button').forEach((b, g) => b.addEventListener('click', () => {
       if (estado.estatus.has(g)) estado.estatus.delete(g); else estado.estatus.add(g);
       b.setAttribute('aria-pressed', String(estado.estatus.has(g)));
@@ -621,7 +623,7 @@
   function cabeceraProyecto(p, clasificacion) {
     const m = datos.municipios.get(p.cvemun);
     return `<h2>${S.esc(p.nombre)}</h2><p class="sub">${S.esc(m ? m.municipio + ', ' + m.entidad : nombreEstado(p.entidad))}</p>`
-      + `<span class="chip"><i style="background:${ESTATUS[p.g]}"></i>${S.esc(t('e.' + p.g))}</span>`
+      + `<span class="chip"><i style="background:${colorEstatus(p.g)}"></i>${S.esc(t('e.' + p.g))}</span>`
       + (clasificacion ? ` <span class="chip">${S.esc(clasificacion)}</span>` : '');
   }
 
@@ -1086,7 +1088,11 @@
       pintarMunicipios();
       if (resaltado) resaltado.setStyle({ color: S.color('--marca') });
       const borde = S.oscuro() ? '#111' : '#fff';
-      puntosPorEstado.forEach(pr => pr.then(lista => lista.forEach(p => p.m.setStyle({ color: borde }))).catch(() => {}));
+      puntosPorEstado.forEach(pr => pr.then(lista => lista.forEach(p => p.m.setStyle({ color: borde, fillColor: colorEstatus(p.g) }))).catch(() => {}));
+      if (estado.entidad) pintarFiltros();
+      if (abierto && abierto.p) {
+        sitio('detalle').querySelectorAll('.chip i').forEach(i => { i.style.background = colorEstatus(abierto.p.g); });
+      }
     });
   }
 
