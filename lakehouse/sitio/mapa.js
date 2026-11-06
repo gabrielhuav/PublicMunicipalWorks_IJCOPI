@@ -421,6 +421,14 @@
     mapa.setView(mapa.unproject(mapa.project(centro, zoom).add(corrimiento), zoom), zoom, SIN_ANIMAR);
   }
 
+  /* El centro del área libre coincide con el destino de ir(), aunque la ficha tape parte del mapa. */
+  function centroVisible() {
+    const m = margenes(), tam = mapa.getSize();
+    return mapa.containerPointToLatLng(L.point(
+      (tam.x + m.paddingTopLeft[0] - m.paddingBottomRight[0]) / 2,
+      (tam.y + m.paddingTopLeft[1] - m.paddingBottomRight[1]) / 2));
+  }
+
   /* El estado de un punto: el de la cabecera municipal más cercana. */
   function estadoEn(lat, lon) {
     let mejor = 0, d = Infinity;
@@ -1050,12 +1058,16 @@
     cancelarBusqueda();
     sitio('sugerencias').hidden = true;
     sitio('buscar').value = s.titulo;
+    sitio('buscar').blur();
+    cerrarComparar();
+    cerrarCajon();
+    cerrarPanel();
     if (s.tipo === 'estado') {
       cargarEstado(s.e.id, true);
     } else if (s.tipo === 'municipio') {
       abrirMunicipio(s.m.cvemun);
+      cargarEstado(Number(s.m.cvemun.slice(0, 2)));
       ir([s.m.lat, s.m.lon], 12);
-      if (estado.vista === 'proyectos') cargarEstado(Number(s.m.cvemun.slice(0, 2)));
     } else if (s.tipo === 'proyecto') {
       mostrarProyecto(s.p);
     } else {
@@ -1063,8 +1075,8 @@
         : /suburb|neighbourhood|quarter|hamlet|village/.test(s.clase || '') ? 15
           : /town|city|locality|municipality/.test(s.clase || '') ? 13 : /county|district/.test(s.clase || '') ? 11
             : /state|region/.test(s.clase || '') ? 8 : 14;
+      cargarEstado(estadoEn(s.lat, s.lon));
       ir([s.lat, s.lon], z);
-      if (estado.vista === 'proyectos') cargarEstado(estadoEn(s.lat, s.lon));
     }
   }
 
@@ -1263,7 +1275,7 @@
       clearTimeout(relojAuto);
       relojAuto = setTimeout(() => {
         if (estado.vista !== 'proyectos' || mapa.getZoom() < 9) return;
-        const c = mapa.getCenter();
+        const c = centroVisible();
         const id = estadoEn(c.lat, c.lng);
         if (id && id !== estado.entidad) cargarEstado(id);
       }, 500);
