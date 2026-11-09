@@ -23,6 +23,7 @@ Uso
 ---
     python scripts/evaluacion/eval_criterio_costo.py
     python scripts/evaluacion/eval_criterio_costo.py --json salida.json
+    python scripts/evaluacion/eval_criterio_costo.py --desde 52 --json otras_semillas.json
 """
 import argparse
 import json
@@ -111,10 +112,13 @@ def intervalo(valores):
 def main():
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--semillas", type=int, default=10)
+    # Primera semilla. Con --desde 52 se repite la evaluación sobre semillas que no se usaron
+    # al diseñar R1 y R2, para comprobar que la mejora no depende de las semillas 42-51.
+    ap.add_argument("--desde", type=int, default=42)
     ap.add_argument("--json")
     args = ap.parse_args()
 
-    semillas = range(42, 42 + args.semillas)
+    semillas = range(args.desde, args.desde + args.semillas)
     resultado = {}
     for prev in PREVALENCIAS:
         filas = {}
@@ -164,8 +168,20 @@ def main():
                     f"{c} {v[0]:.3f}±{v[1]:.3f}" for c, v in causas.items()))
             resultado[f"{prev:.2f}"][nombre] = {"metricas": medias, "causas": causas}
 
+        # Las variantes se evalúan sobre las mismas semillas, así que la comparación justa es
+        # pareada: la diferencia semilla a semilla, con su intervalo, y en cuántas gana R2.
+        a, b = filas["R0 capítulo"]["m"], filas["R2 tipo z>3.0 + brecha"]["m"]
+        claves = ("precision", "recall", "f1", "roc", "pr")
+        diferencia = {k: intervalo([y[k] - x[k] for x, y in zip(a, b)]) for k in claves}
+        a_favor = {k: int(sum(y[k] > x[k] for x, y in zip(a, b))) for k in claves}
+        print("   diferencia pareada R2 z>3.0 menos R0: " + "  ".join(
+            f"{k} {diferencia[k][0]:+.3f}±{diferencia[k][1]:.3f} ({a_favor[k]}/{len(a)})"
+            for k in claves))
+        resultado[f"{prev:.2f}"]["Diferencia pareada, R2 z>3.0 menos R0"] = {
+            "metricas": diferencia, "semillas_a_favor_de_R2": a_favor, "semillas": list(semillas)}
+
     if args.json:
-        with open(args.json, "w", encoding="utf-8") as f:
+        with open(args.json, "w", encoding="utf-8", newline="\n") as f:
             json.dump(resultado, f, ensure_ascii=False, indent=1)
 
 

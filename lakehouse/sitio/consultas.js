@@ -71,16 +71,40 @@
     return `<td${n ? ' class="n"' : ''}>${S.esc(s.length > 60 ? s.slice(0, 60) + '…' : s)}</td>`;
   }
 
+  /* Las siete preguntas con el nombre que llevan en la Tabla 3 del artículo; el archivo se conserva
+     debajo para encontrar la consulta en lakehouse/consultas/. */
+  const PREGUNTAS = {
+    '01_totales_por_ciclo': ['Proyectos y montos por año', 'Projects and amounts by year'],
+    '02_clasificacion_2024': ['Gasto por estado y tipo, 2024', 'Spending by state and type, 2024'],
+    '03_estado_de_mexico_2024': ['Estado de México, 2024', 'State of Mexico, 2024'],
+    '04_rezago_2023': ['Pagado por habitante según rezago, 2023', 'Paid per head by deprivation, 2023'],
+    '05_alertas_por_ciclo': ['Marcas por criterio y año', 'Flags by criterion and year'],
+    '06_historial_de_un_folio': ['Estatus de un folio en cada año', 'Status of one folio in each year'],
+    '07_temascaltepec': ['Temascaltepec por año', 'Temascaltepec by year'],
+  };
+
+  /* platform.version() da 10.0.<compilación>; desde la 22000 es Windows 11 aunque diga 10. */
+  function anfitrion(texto) {
+    const m = /^Windows 10\.0\.(\d+)$/.exec(texto || '');
+    if (!m) return texto;
+    const version = Number(m[1]) >= 22000 ? '11' : '10';
+    return `Windows ${version} (${S.idioma === 'en' ? 'build' : 'compilación'} ${m[1]})`;
+  }
+
   function lago(ev) {
     const cab = [t('consulta'), t('filas'), 'SHA-256', t('igual'), 'PostgreSQL ms', 'p95', 'DuckDB ms', 'p95']
       .map(x => `<th scope="col">${S.esc(x)}</th>`).join('');
-    const filas = Object.entries(ev.consultas).map(([k, r]) => `<tr><td>${S.esc(k)}</td>${celda(r.filas)}
+    const nombre = k => {
+      const p = PREGUNTAS[k];
+      return p ? `${S.esc(p[S.idioma === 'en' ? 1 : 0])}<br><code>${S.esc(k)}</code>` : S.esc(k);
+    };
+    const filas = Object.entries(ev.consultas).map(([k, r]) => `<tr><td>${nombre(k)}</td>${celda(r.filas)}
       <td><code>${r.sha256.slice(0, 16)}…</code></td><td>${r.igual ? t('si') : t('no')}</td>
       ${celda(r.pg_ms)}${celda(r.pg_p95)}${celda(r.lago_ms)}${celda(r.lago_p95)}</tr>`).join('');
     document.getElementById('lago').innerHTML = `<table><thead><tr>${cab}</tr></thead><tbody>${filas}</tbody></table>`;
     const e = ev.entorno;
     document.getElementById('lagoNota').textContent = t('lago.nota', { n: e.repeticiones, pg: e.postgresql,
-      duck: e.duckdb, hilos: e.hilos_duckdb, anfitrion: e.anfitrion });
+      duck: e.duckdb, hilos: e.hilos_duckdb, anfitrion: anfitrion(e.anfitrion) });
   }
 
   function tarjeta(c, man) {

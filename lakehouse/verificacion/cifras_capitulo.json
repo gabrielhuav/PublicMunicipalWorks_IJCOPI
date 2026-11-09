@@ -9,7 +9,23 @@
   "total": 55740,
   "de_voto": 17993,
   "votos": 8723,
-  "capitulo": "about 28,000"
+  "capitulo": "about 28,000",
+  "por_origen": {
+   "disparadores": 38083,
+   "generador_azar": 8934,
+   "generador_por_voto": 8723
+  },
+  "disparadores_por_tipo": {
+   "INFORME_AVANCE": 14885,
+   "REGISTRO_COSTO": 13228,
+   "VOTO_EMITIDO": 8723,
+   "CREACION_OBRA": 1247
+  },
+  "de_voto_por_origen": {
+   "disparadores": 8723,
+   "generador_azar": 547,
+   "generador_por_voto": 8723
+  }
  },
  "api_public_obras": {
   "bytes": 765748,

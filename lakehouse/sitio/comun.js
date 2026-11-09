@@ -34,7 +34,11 @@
   const leer = k => { try { return localStorage.getItem(k); } catch (e) { return null; } };
   const guardar = (k, v) => { try { localStorage.setItem(k, v); } catch (e) { /* sin almacenamiento */ } };
 
-  const q = new URLSearchParams(location.search).get('lang');
+  /* `idioma` y `modo` son los parámetros del sitio del congreso (?modo=claro&idioma=en); se aceptan
+     como alias para que los enlaces de ambos artículos se lean igual. Lo que llega por la URL vale
+     para esa visita y no se guarda como preferencia. */
+  const params = new URLSearchParams(location.search);
+  const q = params.get('lang') || params.get('idioma');
   const idioma = q === 'en' || q === 'es' ? q : ((navigator.language || '').startsWith('en') ? 'en' : 'es');
   const locale = idioma === 'en' ? 'en-GB' : 'es-MX';
   const html = document.documentElement;
@@ -44,7 +48,9 @@
      en este navegador. mapa-teselas.js escucha 'temacambiado' para cambiar el mapa base. */
   const MODOS = ['auto', 'claro', 'oscuro'];
   let tema = leer('obraslago-tema') === 'azul' ? 'azul' : 'guinda';
-  let modo = MODOS.includes(leer('obraslago-modo')) ? leer('obraslago-modo') : 'auto';
+  const modoUrl = params.get('modo');
+  let modo = MODOS.includes(modoUrl) ? modoUrl
+    : (MODOS.includes(leer('obraslago-modo')) ? leer('obraslago-modo') : 'auto');
   const sistemaOscuro = () => !!(window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches);
   const oscuro = () => modo === 'oscuro' || (modo === 'auto' && sistemaOscuro());
 
@@ -92,6 +98,19 @@
     return r.json();
   }
 
+  /* Idioma y modo temporal viajan entre páginas; la preferencia guardada no cambia. */
+  function actualizarEnlaces() {
+    const temporal = params.get('modo');
+    document.querySelectorAll('.barra a[href]').forEach(a => {
+      const u = new URL(a.href);
+      if (u.origin !== location.origin) return;
+      if (q) u.searchParams.set('lang', idioma);
+      if (MODOS.includes(temporal)) u.searchParams.set('modo', temporal);
+      else u.searchParams.delete('modo');
+      a.href = u.toString();
+    });
+  }
+
   /* Textos fijos de la página y controles de la barra: idioma, tema y modo. */
   function pintarFijos(propios) {
     document.querySelectorAll('[data-t]').forEach(el => {
@@ -107,6 +126,7 @@
       b.addEventListener('click', () => {
         const u = new URL(location.href);
         u.searchParams.set('lang', idioma === 'en' ? 'es' : 'en');
+        u.searchParams.delete('idioma');
         location.href = u.toString();
       });
     }
@@ -128,6 +148,14 @@
       bm.addEventListener('click', () => {
         modo = MODOS[(MODOS.indexOf(modo) + 1) % MODOS.length];
         guardar('obraslago-modo', modo);
+        /* Elegido a mano, el modo deja de venir de la URL: al recargar se respeta la elección. */
+        if (params.has('modo')) {
+          params.delete('modo');
+          const u = new URL(location.href);
+          u.searchParams.delete('modo');
+          try { history.replaceState(history.state, '', u.toString()); } catch (e) { /* sin historial */ }
+        }
+        actualizarEnlaces();
         pintarModo();
         aplicarTema();
       });
@@ -142,14 +170,7 @@
       document.addEventListener('click', ev => { if (!ev.target.closest('.barra')) abrir(false); });
       document.addEventListener('keydown', ev => { if (ev.key === 'Escape') abrir(false); });
     }
-    /* Los enlaces internos conservan el idioma. */
-    document.querySelectorAll('.barra a[href]').forEach(a => {
-      if (a.href.startsWith(location.origin) && q) {
-        const u = new URL(a.href);
-        u.searchParams.set('lang', idioma);
-        a.href = u.toString();
-      }
-    });
+    actualizarEnlaces();
   }
 
   /* Un valor de color del tema actual, como lo calcula la hoja de estilos. */

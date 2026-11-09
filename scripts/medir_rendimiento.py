@@ -110,7 +110,9 @@ def entorno():
                          "-d", BASE_DB, "-t", "-A", "-c", "SHOW server_version"])
     cpus = salida(["docker", "exec", CONTENEDOR_DB, "nproc"])
     return {
-        "anfitrion": f"{platform.system()} {platform.release()} ({platform.machine()})",
+        # release() dice "10" también en Windows 11 con Python 3.10; version() da la compilación
+        # (10.0.22000 o mayor es Windows 11), como en lakehouse/verificacion/verificar_lago.py.
+        "anfitrion": f"{platform.system()} {platform.version()} ({platform.machine()})",
         "python": platform.python_version(),
         "docker": salida(["docker", "--version"]),
         "postgresql": version_pg,
