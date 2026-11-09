@@ -37,11 +37,30 @@ los encabezados con la portada. Se conservan los autores y contactos aprobados,
 las siete ecuaciones nativas, las figuras y los valores de la Tabla 2. Se inspeccionaron
 las 15 páginas renderizadas; resumen de 142 palabras y seis palabras clave.
 
-La referencia del software cita ahora la versión estable del código y sus evidencias:
+Ese cierre citaba la versión estable del código y sus evidencias:
 [8da559b](https://github.com/gabrielhuav/PublicMunicipalWorks_IJCOPI/tree/8da559b314d47ab0c7d9d17c3e6ab51ef1ca59f8).
-El Word se generó después de ese commit; su propio commit será distinto. Gabriel autorizó
+El Word se publicó después en e4b35db. Gabriel autorizó
 las correcciones y su commit y push el 9 de noviembre de 2026. La aprobación académica
 final de los autores y el envío a la revista siguen pendientes.
+
+Revisión posterior a la evaluación externa del 9 de noviembre: la versión vigente precisa
+el monto aprobado y el logaritmo del costo unitario en C1 sobre registros federales, las
+imágenes JPEG/PNG frente a referencias PDF, la autenticación de personal frente a sesiones
+ciudadanas, el ajuste y evaluación retrospectivos sobre la misma muestra y la puntuación R2.
+Los intervalos son normales aproximados; las métricas de la Tabla 2 se conservan.
+La Figura 1 aclara la autenticación y la Figura 4 usa una captura nueva del mapa corregido.
+Autores, contactos, siete ecuaciones nativas y base v0 se conservan.
+Control final con Microsoft Word: 15 páginas y 9,744 palabras, 42.37 % sobre las 6,844
+de v0; resumen de 142 palabras y seis palabras clave. Quince páginas renderizadas
+inspeccionadas y cero palabras nuevas sin amarillo; figuras modificadas con marco amarillo.
+
+La cita del código y sus evidencias corresponde ahora a
+[661e7da](https://github.com/gabrielhuav/PublicMunicipalWorks_IJCOPI/tree/661e7dadee63e6f947a8fde3623a519fb15e9fe1),
+que incluye la deduplicación de importes por municipio e identificador de contrato,
+la URI de OC4IDS y las mejoras de la web. La nueva evidencia focalizada recalcula la capa 04
+desde archivos oficiales; no reemplaza las mediciones históricas de rendimiento.
+Gabriel autorizó las correcciones y su commit y push. Esta publicación sigue pendiente
+de aprobación académica de los autores y no constituye envío a la revista.
 
 Los generadores y fuentes permanecen en el repositorio original: el texto se modifica
 mediante `paper/ijcopi/extender_v1.py`; no editar estos Word a mano. Cada actualización
