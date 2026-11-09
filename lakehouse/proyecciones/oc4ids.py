@@ -174,7 +174,7 @@ def main():
     (VERIFICACION / "evidencia_oc4ids.json").write_text(
         json.dumps(evidencia, ensure_ascii=False, indent=1) + "\n", encoding="utf-8", newline="\n")
     paquete = {
-        "uri": "https://github.com/gabrielhuav/PublicMunicipalWorks_DWH",
+        "uri": "https://github.com/gabrielhuav/PublicMunicipalWorks_IJCOPI",
         "publisher": {"name": "Proyección de investigación sobre datos abiertos de SHCP"},
         "publishedDate": CONSULTADO, "version": "0.9", "projects": resultado}
     destino = DATOS / "publicar"

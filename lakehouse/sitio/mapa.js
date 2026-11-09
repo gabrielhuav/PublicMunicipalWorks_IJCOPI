@@ -20,7 +20,8 @@
       'n.resumen': 'Resumen nacional · {c}',
       lema: 'Registros oficiales de SHCP, INEGI y CONEVAL en un lago de datos. Cada capa es el resultado de una consulta a la base de datos.',
       'mapa.region': 'Mapa', 'panel.abrir': 'Capas y filtros', 'panel.cerrar': 'Cerrar el panel',
-      'b.placeholder': 'Busca un lugar, municipio, proyecto o folio', 'b.lugares': 'Lugares',
+      'b.placeholder': 'Busca lugar, proyecto o folio',
+      'b.etiqueta': 'Busca un lugar, municipio, proyecto o folio', 'b.lugares': 'Lugares',
       'b.estados': 'Estados', 'b.municipios': 'Municipios', 'b.proyectos': 'Proyectos del estado cargado',
       'b.nada': 'Sin resultados.', 'b.buscando': 'Buscando lugares…', 'b.sinred': 'No se pudo consultar el buscador de lugares.',
       'b.fuente': 'Los lugares se buscan en OpenStreetMap (Photon).',
@@ -101,7 +102,8 @@
       'n.resumen': 'National summary · {c}',
       lema: 'Official records from SHCP, INEGI and CONEVAL in a data lake. Every layer is the result of a query to the database.',
       'mapa.region': 'Map', 'panel.abrir': 'Layers and filters', 'panel.cerrar': 'Close the panel',
-      'b.placeholder': 'Search a place, municipality, project or folio', 'b.lugares': 'Places',
+      'b.placeholder': 'Search place, project or folio',
+      'b.etiqueta': 'Search a place, municipality, project or folio', 'b.lugares': 'Places',
       'b.estados': 'States', 'b.municipios': 'Municipalities', 'b.proyectos': 'Projects of the loaded state',
       'b.nada': 'No results.', 'b.buscando': 'Searching places…', 'b.sinred': 'The place search could not be reached.',
       'b.fuente': 'Places are searched in OpenStreetMap (Photon).',
@@ -1169,7 +1171,7 @@
 
     const caja = sitio('buscar');
     caja.placeholder = t('b.placeholder');
-    caja.setAttribute('aria-label', t('b.placeholder'));
+    caja.setAttribute('aria-label', t('b.etiqueta'));
     caja.addEventListener('input', () => buscar(caja.value));
     caja.addEventListener('keydown', ev => {
       const n = sugerencias.length;

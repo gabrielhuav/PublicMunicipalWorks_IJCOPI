@@ -78,10 +78,11 @@
     "monto_shcp",
     "relacion"
    ],
-   "sha256_consulta": "1633171d12a6dfcf99471606ab8fb1a3c18a0fd585fa3a761d56df41caabf26b",
-   "sha256_datos": "c7af95e4711f66db69dcdb2b0047fd5ec2ce9f4d47b5a93e0cec2f1a09b1c947",
-   "sql": "-- Contratos de obra de 2022 según dos fuentes oficiales: lo que cada municipio declaró a INEGI\n-- en el CNGMD 2023 y lo que SHCP registra como contratos de obra convocados por un municipio.\n-- Una diferencia no prueba irregularidad: el CNGMD cubre todos los recursos del municipio y\n-- SHCP solo el gasto federalizado.\nSELECT cvemun, contratos_cngmd, monto_cngmd, contratos_shcp, monto_shcp, relacion\nFROM oro_cruce_cngmd\nORDER BY cvemun;\n",
-   "datos": "04_cruce_cngmd_2022.json"
+   "sha256_consulta": "a572ad73479910e3fb86e768e129e32edbca505eaa9ae10959d16f6d36d3d8ff",
+   "sha256_datos": "4c120ca89f89918446e59c1eb37082f9c86041a9a7ef1032b3e6ef161f3e5e81",
+   "sql": "-- Contratos de obra de 2022 según dos fuentes oficiales: lo que cada municipio declaró a INEGI\n-- en el CNGMD 2023 y lo que SHCP registra como contratos de obra convocados por un municipio.\n-- Una diferencia no prueba irregularidad: el CNGMD cubre todos los recursos del municipio y\n-- SHCP solo el gasto federalizado.\n-- monto_shcp suma una vez cada identificador por municipio, tomando su máximo\n-- monto informado si difiere entre folios; no representa gasto pagado acreditado.\nSELECT cvemun, contratos_cngmd, monto_cngmd, contratos_shcp, monto_shcp, relacion\nFROM oro_cruce_cngmd\nORDER BY cvemun;\n",
+   "datos": "04_cruce_cngmd_2022.json",
+   "actualizado_en": "2026-11-09 18:27 UTC"
   },
   {
    "consulta": "05_puntos_2024.duck.sql",

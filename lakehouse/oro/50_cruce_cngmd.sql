@@ -2,15 +2,22 @@
 -- de obra pública y lo que SHCP registra como contratos de obra convocados por un
 -- municipio. Una diferencia no prueba irregularidad: el CNGMD cuenta lo que el municipio
 -- reporta sobre todos sus recursos y SHCP solo ve el gasto federalizado.
-WITH shcp AS (
-    SELECT o.cvemun,
-           count(DISTINCT coalesce(c.id_contrato, c.numero_contrato)) AS contratos_shcp,
-           sum(c.monto) AS monto_shcp
+-- Un contrato puede vincularse a varios folios: contar y sumar al mismo grano.
+-- Si un identificador trae varios montos, se conserva el máximo informado; no
+-- equivale a un pago acreditado ni se puede inferir aquí cuál fue el último monto.
+WITH contratos_municipales AS (
+    SELECT o.cvemun, coalesce(c.id_contrato, c.numero_contrato) AS contrato,
+           max(c.monto) AS monto
     FROM plata_contratos c
     JOIN oro_proyecto_ciclo o USING (folio, ciclo)
     WHERE c.ciclo = 2022 AND c.tipo_contratacion = 'Obra'
       AND (c.convocante ILIKE '%MUNICIPI%' OR c.convocante ILIKE '%AYUNTAMIENTO%')
-    GROUP BY o.cvemun
+      AND coalesce(c.id_contrato, c.numero_contrato) IS NOT NULL
+    GROUP BY o.cvemun, coalesce(c.id_contrato, c.numero_contrato)
+), shcp AS (
+    SELECT cvemun, count(*) AS contratos_shcp, sum(monto) AS monto_shcp
+    FROM contratos_municipales
+    GROUP BY cvemun
 )
 SELECT m.cvemun, m.entidad, m.municipio, m.pobtot,
        n.contratos_total AS contratos_cngmd, n.monto_total AS monto_cngmd,

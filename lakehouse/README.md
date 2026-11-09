@@ -58,8 +58,9 @@ Las consultas y los comandos para verlas están en [`consultas/README.md`](consu
 ## Sitio
 
 `sitio/` es un mapa estático con su página de consultas. Se publica con GitHub Pages desde un
-repositorio propio, `gabrielhuav/PublicMunicipalWorks_Lakehouse`, para que el sitio del capítulo no
-cambie. Cada capa es el resultado de una consulta de `capas/`: las `.pg.sql` corren en PostgreSQL y
+repositorio propio, `gabrielhuav/PublicMunicipalWorks_IJCOPI`, para que el sitio del capítulo no
+cambie. La distribución anterior `PublicMunicipalWorks_Lakehouse` se conserva intacta.
+Cada capa es el resultado de una consulta de `capas/`: las `.pg.sql` corren en PostgreSQL y
 las `.duck.sql` en el lago. Para regenerarlas y comprobarlas:
 
 ```bash
@@ -95,6 +96,22 @@ autores eligieron (`sitio/ejemplos.json`). Las reglas de Google no permiten impr
 capturarlo, así que no va en las figuras. Cada enlace de la dependencia tiene al lado su copia en
 Internet Archive, porque muchos ya no responden. `?folio=` abre la ficha de un proyecto y
 `?comparar=1` su antes y ahora. El sitio tiene tema guinda y azul, cada uno claro u oscuro.
+
+En el cruce CNGMD/SHCP de 2022, el conteo y `monto_shcp` se calculan una vez por municipio e
+identificador de contrato, aunque este aparezca en varios folios. Se toma el máximo monto
+informado por identificador; no representa un pago acreditado ni identifica el último valor.
+La revisión focalizada del 9 de noviembre de 2026 se reproduce sin servicios con:
+
+```bash
+lakehouse/.venv/Scripts/python lakehouse/verificacion/revisar_cruce_cngmd.py --bronce lakehouse/datos/bronce
+```
+
+Lee los tres ZIP oficiales con sus SHA-256 y ejecuta los SQL reales; la evidencia nueva está en
+`verificacion/evidencia_cruce_cngmd_20261109.json`. Recalculó solo la capa 04 y su entrada del
+manifiesto; no repitió las mediciones históricas de S3, PostgreSQL, Iceberg ni latencia.
+`evidencia_capas.txt` conserva su fecha y resultado históricos: su fila 04 queda superada por
+esta evidencia focalizada. Para cotejar todas las capas con los servicios, reconstruir oro con
+el SQL vigente y ejecutar de nuevo `verificar_capas.py`.
 
 `verificacion/ejemplo_esri.py` deja en `verificacion/evidencia_ejemplo.json` el proyecto del ejemplo
 del artículo y lo que Esri publica de su punto: versiones, fechas de toma y créditos.

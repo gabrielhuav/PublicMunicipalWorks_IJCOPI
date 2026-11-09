@@ -118,7 +118,7 @@
     return `<section class="panel tarjeta">
       <h2>${S.esc((TITULOS[c.consulta] || [c.consulta, c.consulta])[S.idioma === 'en' ? 1 : 0])}</h2>
       <p>${S.esc(resumen)}</p>
-      <p class="meta">${S.esc(t('motor.' + c.motor))} · ${S.esc(t('filas.n', { n: S.numero(c.filas) }))}${S.esc(partes)} · ${S.esc(man.generado_en)} · SHA-256 <code>${c.sha256_datos.slice(0, 16)}…</code></p>
+      <p class="meta">${S.esc(t('motor.' + c.motor))} · ${S.esc(t('filas.n', { n: S.numero(c.filas) }))}${S.esc(partes)} · ${S.esc(c.actualizado_en || man.generado_en)} · SHA-256 <code>${c.sha256_datos.slice(0, 16)}…</code></p>
       <details data-datos="${S.esc(datos)}"><summary>${S.esc(t('primeras', { n: Math.min(10, c.filas) }))}</summary><div class="tabla"></div></details>
       <details><summary>${S.esc(t('sql.comandos'))}</summary><p class="meta"><code>${S.esc(c.consulta)}</code></p><pre>${S.esc(cmd)}</pre><pre>${S.esc(c.sql)}</pre></details>
     </section>`;

@@ -120,7 +120,7 @@ body.app { height: 100vh; height: 100dvh; display: flex; flex-direction: column;
 .sugerencias .vacio { padding: .45rem 14px; color: var(--texto-3); font-size: .85rem; }
 
 /* Panel de capas y filtros: a la izquierda en pantallas anchas, hoja inferior en el teléfono. */
-.panel-lateral { position: absolute; z-index: 1000; top: 64px; left: 12px; bottom: 10px; width: 360px;
+.panel-lateral { position: absolute; z-index: 1000; top: 64px; left: 12px; bottom: 76px; width: 360px;
   overflow-y: auto; background: var(--superficie); border-radius: var(--r); box-shadow: var(--sombra);
   padding: .65rem .9rem .7rem; }
 .panel-lateral__cabecera { display: flex; align-items: flex-start; gap: .5rem; }
@@ -158,7 +158,7 @@ body.app { height: 100vh; height: 100dvh; display: flex; flex-direction: column;
 .escena:has(.panel-lateral.abierto) .boton-flotante, .escena:has(.cajon:not([hidden])) .boton-flotante { display: none; }
 
 /* Ficha de detalle: a la derecha en pantallas anchas, hoja inferior en el teléfono. */
-.cajon { position: absolute; z-index: 1002; top: 12px; right: 12px; bottom: 12px; width: 390px; overflow-y: auto;
+.cajon { position: absolute; z-index: 1002; top: 12px; right: 12px; bottom: 76px; width: 390px; overflow-y: auto;
   background: var(--superficie); border-radius: var(--r); box-shadow: var(--sombra-3); padding: 1rem 1.1rem 1.2rem; }
 .cajon[hidden] { display: none; }
 .cajon > .cerrar { position: sticky; top: 0; float: right; margin: -4px -6px 0 8px; z-index: 1; }
@@ -275,13 +275,20 @@ body.figura .comparar__mapa { height: calc(100vh - 92px); }
 body.figura .comparar__mapas figcaption { font-size: 1.05rem; color: var(--texto); }
 
 /* ---------- mapa base: control del trabajo 38 (assets/estilo.css) ---------- */
+/* Las fichas de escritorio dejan libre el pie; en móvil el control sube sobre la hoja abierta. */
+.escena > #mapa .leaflet-bottom.leaflet-right { z-index: 1004; }
+@media (max-width: 760px) {
+  body:not(.figura) .escena:has(.panel-lateral.abierto, .cajon:not([hidden])) > #mapa .leaflet-bottom.leaflet-right {
+    bottom: calc(60% + 12px);
+  }
+}
 .leaflet-layer.teselas-invertidas { filter: invert(1) hue-rotate(180deg) brightness(.92) contrast(.88) saturate(.55); }
 .mapa-teselas { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; max-width: 340px;
   font-family: var(--sans); color: var(--texto); }
 .mapa-teselas button { appearance: none; margin: 0; border: 0; background: none; color: inherit; font: inherit; cursor: pointer; }
 .mapa-teselas__barra { display: flex; align-items: stretch; overflow: hidden; max-width: 100%;
   background: var(--superficie); border: 1px solid var(--borde); border-radius: var(--r-s); box-shadow: var(--sombra-2); }
-.mapa-teselas__probar, .mapa-teselas__abrir { display: flex; align-items: center; gap: 6px; padding: 6px 10px;
+.mapa-teselas .mapa-teselas__probar, .mapa-teselas .mapa-teselas__abrir { display: flex; align-items: center; gap: 6px; padding: 6px 10px;
   font-size: .74rem; line-height: 1.2; white-space: nowrap; transition: background .14s; }
 .mapa-teselas__probar { color: var(--texto-2); flex: none; }
 .mapa-teselas__probar strong { color: var(--texto); font-weight: 650; }
@@ -318,7 +325,7 @@ body.figura .comparar__mapas figcaption { font-size: 1.05rem; color: var(--texto
 .mapa-teselas__aviso { padding: 7px 11px; font-size: .74rem; line-height: 1.35; }
 @media (max-width: 600px) {
   .mapa-teselas__pregunta { display: none; }
-  .mapa-teselas__probar, .mapa-teselas__abrir { padding: 6px 8px; }
+  .mapa-teselas .mapa-teselas__probar, .mapa-teselas .mapa-teselas__abrir { padding: 6px 8px; }
   .leaflet-bottom.leaflet-right { bottom: 64px; }
 }
 
