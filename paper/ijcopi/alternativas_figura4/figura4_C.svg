@@ -1,0 +1,71 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="480" viewBox="0 0 1800 480">
+<title>Official data provenance in three lanes</title><desc>The source lane names four official datasets with their record grains. Nine original files enter Bronze, then Silver and Gold. Gold feeds warehouse project facts and history; Silver feeds municipal context directly. Counts at different grains are not additive.</desc>
+<rect width="1800" height="480" fill="white"/>
+<rect x="5" y="5" width="1790" height="158" rx="10" fill="#F5F8FA" stroke="#E1E8ED" stroke-width="2"/>
+<rect x="5" y="190" width="1790" height="132" rx="10" fill="#F5F8FA" stroke="#E1E8ED" stroke-width="2"/>
+<rect x="5" y="371" width="1790" height="77" rx="10" fill="#EFF8F7" stroke="#C5DFDD" stroke-width="2"/>
+<text x="105" y="76" font-family="Arial, Helvetica, sans-serif" font-size="32" fill="#19384B" font-weight="700" text-anchor="middle">Official</text>
+<text x="105" y="116" font-family="Arial, Helvetica, sans-serif" font-size="32" fill="#19384B" font-weight="700" text-anchor="middle">sources</text>
+<text x="105" y="244" font-family="Arial, Helvetica, sans-serif" font-size="31" fill="#19384B" font-weight="700" text-anchor="middle">Traceable</text>
+<text x="105" y="284" font-family="Arial, Helvetica, sans-serif" font-size="31" fill="#19384B" font-weight="700" text-anchor="middle">layers</text>
+<text x="105" y="404" font-family="Arial, Helvetica, sans-serif" font-size="30" fill="#087778" font-weight="700" text-anchor="middle">Warehouse</text>
+<text x="105" y="439" font-family="Arial, Helvetica, sans-serif" font-size="30" fill="#087778" font-weight="400" text-anchor="middle">PostgreSQL</text>
+<rect x="215" y="13" width="380" height="144" rx="10" fill="white" stroke="#B9CAD5" stroke-width="2"/>
+<text x="405.0" y="44" font-family="Arial, Helvetica, sans-serif" font-size="30" fill="#19384B" font-weight="700" text-anchor="middle">SHCP · 2020–2025</text>
+<text x="405.0" y="80" font-family="Arial, Helvetica, sans-serif" font-size="34" fill="#19384B" font-weight="700" text-anchor="middle">2,008,738</text>
+<text x="405.0" y="113" font-family="Arial, Helvetica, sans-serif" font-size="30" fill="#283B47" font-weight="400" text-anchor="middle">project-report rows</text>
+<text x="405.0" y="146" font-family="Arial, Helvetica, sans-serif" font-size="30" fill="#455C69" font-weight="400" text-anchor="middle">Federal expenditure</text>
+<path d="M 405.0 157 L 405.0 176" fill="none" stroke="#79909F" stroke-width="2.5" stroke-linejoin="round"/>
+<rect x="610" y="13" width="380" height="144" rx="10" fill="white" stroke="#B9CAD5" stroke-width="2"/>
+<text x="800.0" y="44" font-family="Arial, Helvetica, sans-serif" font-size="30" fill="#19384B" font-weight="700" text-anchor="middle">INEGI · Census 2020</text>
+<text x="800.0" y="80" font-family="Arial, Helvetica, sans-serif" font-size="34" fill="#19384B" font-weight="700" text-anchor="middle">189,432</text>
+<text x="800.0" y="113" font-family="Arial, Helvetica, sans-serif" font-size="30" fill="#283B47" font-weight="400" text-anchor="middle">localities</text>
+<text x="800.0" y="146" font-family="Arial, Helvetica, sans-serif" font-size="30" fill="#455C69" font-weight="400" text-anchor="middle">Population context</text>
+<path d="M 800.0 157 L 800.0 176" fill="none" stroke="#79909F" stroke-width="2.5" stroke-linejoin="round"/>
+<rect x="1005" y="13" width="380" height="144" rx="10" fill="white" stroke="#B9CAD5" stroke-width="2"/>
+<text x="1195.0" y="44" font-family="Arial, Helvetica, sans-serif" font-size="30" fill="#19384B" font-weight="700" text-anchor="middle">INEGI · CNGMD 2023</text>
+<text x="1195.0" y="80" font-family="Arial, Helvetica, sans-serif" font-size="34" fill="#19384B" font-weight="700" text-anchor="middle">4,950 records</text>
+<text x="1195.0" y="113" font-family="Arial, Helvetica, sans-serif" font-size="30" fill="#283B47" font-weight="400" text-anchor="middle">municipality × category</text>
+<text x="1195.0" y="146" font-family="Arial, Helvetica, sans-serif" font-size="30" fill="#455C69" font-weight="400" text-anchor="middle">2022 reference year</text>
+<path d="M 1195.0 157 L 1195.0 176" fill="none" stroke="#79909F" stroke-width="2.5" stroke-linejoin="round"/>
+<rect x="1400" y="13" width="380" height="144" rx="10" fill="white" stroke="#B9CAD5" stroke-width="2"/>
+<text x="1590.0" y="44" font-family="Arial, Helvetica, sans-serif" font-size="30" fill="#19384B" font-weight="700" text-anchor="middle">CONEVAL · 2020</text>
+<text x="1590.0" y="80" font-family="Arial, Helvetica, sans-serif" font-size="34" fill="#19384B" font-weight="700" text-anchor="middle">2,469</text>
+<text x="1590.0" y="113" font-family="Arial, Helvetica, sans-serif" font-size="30" fill="#283B47" font-weight="400" text-anchor="middle">municipal index records</text>
+<text x="1590.0" y="146" font-family="Arial, Helvetica, sans-serif" font-size="30" fill="#455C69" font-weight="400" text-anchor="middle">Social lag</text>
+<path d="M 1590.0 157 L 1590.0 176" fill="none" stroke="#79909F" stroke-width="2.5" stroke-linejoin="round"/>
+<path d="M 405 176 L 1590 176" fill="none" stroke="#79909F" stroke-width="2.5" stroke-linejoin="round"/>
+<path d="M 435 176 L 435 198" fill="none" stroke="#79909F" stroke-width="2.5" stroke-linejoin="round"/>
+<polygon points="435,198 428,187 442,187" fill="#79909F"/>
+<rect x="215" y="198" width="440" height="116" rx="10" fill="white" stroke="#A56825" stroke-width="2"/>
+<text x="435.0" y="230" font-family="Arial, Helvetica, sans-serif" font-size="32" fill="#A56825" font-weight="700" text-anchor="middle">Bronze</text>
+<rect x="700" y="198" width="480" height="116" rx="10" fill="white" stroke="#657784" stroke-width="2"/>
+<text x="940.0" y="230" font-family="Arial, Helvetica, sans-serif" font-size="32" fill="#657784" font-weight="700" text-anchor="middle">Silver</text>
+<rect x="1225" y="198" width="555" height="116" rx="10" fill="white" stroke="#967100" stroke-width="2"/>
+<text x="1502.5" y="230" font-family="Arial, Helvetica, sans-serif" font-size="32" fill="#967100" font-weight="700" text-anchor="middle">Gold</text>
+<text x="435" y="268" font-family="Arial, Helvetica, sans-serif" font-size="30" fill="#283B47" font-weight="400" text-anchor="middle">9 original files · 2,136.3 MB</text>
+<text x="435" y="304" font-family="Arial, Helvetica, sans-serif" font-size="30" fill="#455C69" font-weight="400" text-anchor="middle">Unchanged bytes · SHA-256</text>
+<text x="940" y="268" font-family="Arial, Helvetica, sans-serif" font-size="30" fill="#283B47" font-weight="400" text-anchor="middle">11,014,660 rows · 10 tables</text>
+<text x="940" y="304" font-family="Arial, Helvetica, sans-serif" font-size="30" fill="#455C69" font-weight="400" text-anchor="middle">Harmonised records · Iceberg</text>
+<text x="1502.5" y="268" font-family="Arial, Helvetica, sans-serif" font-size="32" fill="#19384B" font-weight="700" text-anchor="middle">1,537,019 project–year rows</text>
+<text x="1502.5" y="304" font-family="Arial, Helvetica, sans-serif" font-size="30" fill="#455C69" font-weight="400" text-anchor="middle">967,495 project IDs · Parquet</text>
+<path d="M 655 256 L 700 256" fill="none" stroke="#19384B" stroke-width="3" stroke-linejoin="round"/>
+<polygon points="700,256 689,249 689,263" fill="#19384B"/>
+<path d="M 1180 256 L 1225 256" fill="none" stroke="#19384B" stroke-width="3" stroke-linejoin="round"/>
+<polygon points="1225,256 1214,249 1214,263" fill="#19384B"/>
+<path d="M 940 314 L 940 354 L 435 354 L 435 373" fill="none" stroke="#087778" stroke-width="3" stroke-linejoin="round"/>
+<polygon points="435,373 428,362 442,362" fill="#087778"/>
+<text x="685" y="347" font-family="Arial, Helvetica, sans-serif" font-size="30" fill="#087778" font-weight="400" text-anchor="middle">Municipal context</text>
+<path d="M 1502.5 314 L 1502.5 373" fill="none" stroke="#19384B" stroke-width="3" stroke-linejoin="round"/>
+<polygon points="1502.5,373 1495.5,362 1509.5,362" fill="#19384B"/>
+<text x="1590" y="355" font-family="Arial, Helvetica, sans-serif" font-size="30" fill="#19384B" font-weight="400" text-anchor="start">Projects</text>
+<path d="M 660 381 L 660 438" fill="none" stroke="#BCD2D2" stroke-width="2" stroke-linejoin="round"/>
+<path d="M 1175 381 L 1175 438" fill="none" stroke="#BCD2D2" stroke-width="2" stroke-linejoin="round"/>
+<text x="435" y="404" font-family="Arial, Helvetica, sans-serif" font-size="34" fill="#087778" font-weight="700" text-anchor="middle">2,469</text>
+<text x="435" y="439" font-family="Arial, Helvetica, sans-serif" font-size="30" fill="#283B47" font-weight="400" text-anchor="middle">municipalities</text>
+<text x="917.5" y="404" font-family="Arial, Helvetica, sans-serif" font-size="34" fill="#087778" font-weight="700" text-anchor="middle">1,537,019</text>
+<text x="917.5" y="439" font-family="Arial, Helvetica, sans-serif" font-size="30" fill="#283B47" font-weight="400" text-anchor="middle">project–year facts</text>
+<text x="1482.5" y="404" font-family="Arial, Helvetica, sans-serif" font-size="34" fill="#087778" font-weight="700" text-anchor="middle">1,157,395</text>
+<text x="1482.5" y="439" font-family="Arial, Helvetica, sans-serif" font-size="30" fill="#283B47" font-weight="400" text-anchor="middle">historical project versions</text>
+<text x="900" y="477" font-family="Arial, Helvetica, sans-serif" font-size="30" fill="#455C69" font-weight="400" text-anchor="middle">Official and synthetic data are separate. Counts are not additive.</text>
+</svg>

@@ -392,3 +392,15 @@ details summary { cursor: pointer; color: var(--marca); margin-top: .4rem; }
 .tabla tbody tr:hover { background: var(--marca-suave); }
 .tarjeta > .meta { overflow-wrap: anywhere; }
 @media (prefers-reduced-motion: reduce) { .panel-lateral { transition: none; } }
+
+/* Los puntos nacionales comparten un solo canvas; la carga mantiene visibles los controles. */
+.proyectos-canvas { position: absolute; pointer-events: none; }
+.carga-proyectos { margin-top: .75rem; padding: .7rem; border: 1px solid var(--borde);
+  border-radius: var(--r-s); background: var(--superficie-2); }
+.carga-proyectos p { margin: 0 0 .45rem; font-size: .8rem; color: var(--texto-2); }
+.carga-proyectos progress { display: block; width: 100%; accent-color: var(--marca); }
+.grupo-proyectos .leaflet-popup-content-wrapper, .grupo-proyectos .leaflet-popup-tip {
+  background: var(--superficie); color: var(--texto); }
+.grupo-proyectos .leaflet-popup-content { margin: .7rem .9rem; font-size: .8rem; }
+.grupo-proyectos ul { padding-left: 1.1rem; margin: .4rem 0; }
+.grupo-proyectos p { margin: .4rem 0 0; color: var(--texto-2); }

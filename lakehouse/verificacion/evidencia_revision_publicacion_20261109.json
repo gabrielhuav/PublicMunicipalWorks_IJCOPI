@@ -1,0 +1,52 @@
+{
+  "fecha_cliente": "2026-11-09",
+  "publicacion_autorizada_por_usuario": true,
+  "manuscrito": {
+    "archivo": "paper/ijcopi/Paper37_IJCOPI_v1_extendida.docx",
+    "paginas_microsoft_word": 15,
+    "palabras_microsoft_word": 9614,
+    "palabras_base": 6844,
+    "ampliacion_porcentaje": 40.47,
+    "ecuaciones_nativas_conservadas": 7,
+    "palabras_nuevas_sin_amarillo": 0,
+    "paginas_renderizadas_inspeccionadas": 15,
+    "figura_4": "alternativa C",
+    "siglas_definidas_en_pie": ["SHCP", "INEGI", "CNGMD", "CONEVAL", "SHA-256", "MB", "IDs"],
+    "valores_tablas_conservados": true,
+    "tabla_3_cambio_formato": "Solo margenes verticales de celdas y espacio posterior; fuente y valores conservados"
+  },
+  "vista_nacional": {
+    "ejercicio": 2024,
+    "proyectos_georreferenciados": 253346,
+    "conteos_estatus": [145246, 94955, 11793, 1352],
+    "orden_estatus": ["Completed", "In progress", "Cancelled", "Other status"],
+    "porcentajes_redondeados": [57.3, 37.5, 4.7, 0.5],
+    "agregacion": "Todos los registros filtrados en celdas Mercator fijas de 32 px hasta zoom 7",
+    "sectores": "Proporcion lineal exacta del conteo de cada estatus en la celda",
+    "area_simbolo": "9*pi*(1+log2(n)) pixeles cuadrados",
+    "desde_zoom_8": "Puntos individuales en orden determinista por folio e independiente del estatus",
+    "prueba": "scripts/pruebas/vista_nacional.cjs",
+    "resultado_prueba": "aprobada",
+    "casos": ["conteos", "conservacion de grupos y estatus", "limites de celdas", "acercamiento a puntos", "filtros", "cambios de vista", "cache", "busqueda", "seleccion sobre canvas", "carreras", "fallos y reintentos"],
+    "errores_javascript": 0,
+    "evidencia_capturas": "paper/ijcopi/capturas_figura5/evidencia.json"
+  },
+  "capitulo_springer": {
+    "verificador": "PublicMunicipalWorks_DWH/scripts/verificar_enlaces_springer.ps1 (Windows PowerShell 5.1)",
+    "enlaces_comprobados": 21,
+    "tags_comprobados": 2,
+    "tags_conservados": {"v1.2.0-icokg2026": "515a1c6", "v1.7.3-icokg2026": "8feb73c"},
+    "fallos_disponibilidad_http": 1,
+    "incidencia": {
+      "doi": "10.24275/AZC2026E1004",
+      "host_editorial": "https://azcatl.azc.uam.mx/index.php/azcatl/article/view/75",
+      "disponibilidad_desde_esta_red": "tiempo de espera agotado",
+      "api_oficial_handle": "https://doi.org/api/handles/10.24275/AZC2026E1004",
+      "api_http_status": 200,
+      "handle_response_code": 1,
+      "url_registrada_coincide": true,
+      "enlace_congelado_modificado": false,
+      "limite": "La validez del identificador no acredita disponibilidad actual del portal editorial"
+    }
+  }
+}

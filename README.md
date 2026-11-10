@@ -57,7 +57,18 @@ The 2024 projects of the whole country are downloaded in parts. A query that sta
 `-- particion: column` runs once, and its result is split into one file per value of that column,
 with an `indice.json`: the map points come in one file per state, and the details of each project in
 one file per municipality, fetched when a project is opened. The verification splits the result again
-and compares every file. Projects can be filtered by status, by flags C1 to C4 and by evidence
+and compares every file. The project selector now offers **All Mexico**, combining the 32 point
+files into one interactive canvas with all 253,346 georeferenced projects of 2024. It also retains
+the per-state views; filters stay selected when switching between the country and a state. Downloads
+show progress and can be retried, and successful partitions are reused during the visit. National
+display includes every point; state display retains the nearest-municipal-seat approximation.
+At zoom levels 4–7, nearby projects are grouped in fixed 32-pixel Mercator cells. Each circle's
+sectors show the exact status shares of its projects; its area follows `1 + log2(project count)`.
+At zoom 8 and above, individual points use a deterministic order independent of status. This avoids
+the cancellation colour covering other statuses in dense areas. The legend gives exact counts and
+percentages, and selecting a group reveals its composition and zooms in. Figure 5 in the journal
+manuscript captures the national overview and the State of Mexico view.
+Projects can be filtered by status, by flags C1 to C4 and by evidence
 (documents, PDF, image, or a start date after the first release of Esri's imagery archive). The search
 box finds states, municipalities, projects and folios on the site, and any place through OpenStreetMap
 (Photon, or Nominatim when Photon does not answer). Each project can be compared in two releases of

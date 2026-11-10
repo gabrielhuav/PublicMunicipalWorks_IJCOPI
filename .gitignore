@@ -25,5 +25,8 @@ desktop.ini
 *.tmp
 *.bak
 
+# Microsoft Office editing locks
+~$*
+
 # Rebuilt by scripts/evaluacion/generar_dataset_obras.py
 datos_sinteticos/

@@ -1,0 +1,64 @@
+{
+  "language": "en",
+  "errors": [],
+  "views": [
+    {
+      "view": "national",
+      "language": "en",
+      "counter": "Showing 253,346 of 253,346 projects in Mexico.",
+      "visible": 253346,
+      "total": 253346,
+      "selectedState": "0",
+      "attribution": " Leaflet | Tiles © Esri — Esri, HERE, Garmin, © OpenStreetMap contributors, and the GIS User Community",
+      "locationNote": "",
+      "loadedTiles": 12,
+      "canvases": 2,
+      "renderingMode": "agrupado",
+      "statusTotals": [
+        145246,
+        94955,
+        11793,
+        1352
+      ],
+      "groupedCells": 144,
+      "aggregationNote": "Completed · 145,246 (57.3%)In progress · 94,955 (37.5%)Cancelled · 11,793 (4.7%)Other status · 1,352 (0.5%)Grouped view: each circle combines nearby projects; sectors show their status shares. Size uses a logarithmic count scale. Zoom in for individual projects.Showing 253,346 of 253,346 projects in Mexico.",
+      "statusLabels": [
+        "Completed 145,246",
+        "In progress 94,955",
+        "Cancelled 11,793",
+        "Other status 1,352"
+      ],
+      "url": "/?lang=en&modo=claro&vista=figura&capa=proyectos&estado=0&teselas=esri-gris&c=23.6000%2C-102.2000%2C5&ind=pagado_hab&ciclo=2024",
+      "image": "national.png"
+    },
+    {
+      "view": "state_of_mexico",
+      "language": "en",
+      "counter": "Showing 20,552 of 21,335 projects in México.",
+      "visible": 20552,
+      "total": 21335,
+      "selectedState": "15",
+      "attribution": " Leaflet | Tiles © Esri — Esri, HERE, Garmin, © OpenStreetMap contributors, and the GIS User Community",
+      "locationNote": "783 records matching the filters are not drawn: their nearest municipal seat is in another state. This is an approximation, not a check against administrative boundaries.",
+      "loadedTiles": 8,
+      "canvases": 2,
+      "renderingMode": "individual",
+      "statusTotals": [
+        8209,
+        11707,
+        611,
+        25
+      ],
+      "groupedCells": 0,
+      "aggregationNote": "Completed · 8,209 (39.9%)In progress · 11,707 (57%)Cancelled · 611 (3%)Other status · 25 (0.1%)Individual projects. Coincident points can overlap; use the counts to compare statuses.Showing 20,552 of 21,335 projects in México.",
+      "statusLabels": [
+        "Completed 8,538",
+        "In progress 12,138",
+        "Cancelled 634",
+        "Other status 25"
+      ],
+      "url": "/?lang=en&modo=claro&vista=figura&capa=proyectos&estado=15&teselas=esri-gris&c=19.3000%2C-99.6000%2C8&ind=pagado_hab&ciclo=2024",
+      "image": "state_of_mexico.png"
+    }
+  ]
+}
