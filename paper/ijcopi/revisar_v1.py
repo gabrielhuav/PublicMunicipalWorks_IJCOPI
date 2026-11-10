@@ -34,6 +34,12 @@ SATELLITE = HERE / "figura_ejemplo_satelite_corregida.png"
 CLEAN_SATELLITE = HERE / "figura_ejemplo_satelite_limpia.png"
 OUTPUT = HERE / "Paper37_IJCOPI_v1_extendida.docx"
 REPOSITORY = "https://github.com/gabrielhuav/PublicMunicipalWorks_IJCOPI"
+CONTACTS = (
+    ("Gabriel Hurtado Avilés", ("ghurtadoa@ipn.mx", "gabrielhuav@gmail.com")),
+    ("Uriel González Casiano", ("ugonzalezc2400@alumno.ipn.mx", "gonzalezcasianouriel@gmail.com")),
+    ("Marco Tulio Maldonado Mejía", ("mmaldonadom2200@alumno.ipn.mx", "marcotuliomm.s45@gmail.com")),
+    ("Roberto Eswart Zagal Flores", ("rzagalf@ipn.mx",)),
+)
 
 FUTURE = (
     "Future work will assess changes in residents' perceptions through paired surveys "
@@ -160,14 +166,19 @@ def main():
         authors._p.append(run)
     assert authors.text.rstrip().endswith("Roberto Eswart Zagal Flores1")
 
-    # One line per author, in the same order as the author block.
-    replace_text(doc.paragraphs[3], (
-        "ghurtadoa@ipn.mx, gabrielhuav@gmail.com\n"
-        "ugonzalezc2400@alumno.ipn.mx, gonzalezcasianouriel@gmail.com\n"
-        "mmaldonadom2200@alumno.ipn.mx, marcotuliomm.s45@gmail.com\n"
-        "rzagalf@ipn.mx"
-    ))
-    assert doc.paragraphs[3].text.splitlines()[-1] == "rzagalf@ipn.mx"
+    # Explicitly associate each name with its addresses; author order alone is ambiguous.
+    contacts = doc.paragraphs[3]
+    replace_text(contacts, "")
+    for index, (name, addresses) in enumerate(CONTACTS):
+        label = contacts.add_run(name + ": ")
+        label.bold = True
+        label.font.highlight_color = WD_COLOR_INDEX.YELLOW
+        emails = contacts.add_run("; ".join(addresses))
+        emails.bold = False
+        emails.font.highlight_color = WD_COLOR_INDEX.YELLOW
+        if index < len(CONTACTS) - 1:
+            emails.add_break()
+    assert contacts.text.splitlines() == [name + ": " + "; ".join(addresses) for name, addresses in CONTACTS]
 
     # Cite the project's main URL; retain the evaluated version in Availability.
     reference = find(doc, "Hurtado Avilés, G. (2026).")

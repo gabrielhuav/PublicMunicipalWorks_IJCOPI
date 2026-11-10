@@ -70,7 +70,10 @@ de las respuestas de residentes reales. La nueva Figura 4 presenta la procedenci
 las nueve fuentes oficiales y su integración al lago y a PostgreSQL; es un diagrama
 vectorial de elaboración propia, disponible como SVG editable y PNG. El mapa pasa a
 Figura 5 y la comparación satelital a Figura 6. Los correos se organizan en cuatro
-líneas, una por autor y en el mismo orden; el de Roberto queda al final.
+líneas, cada una con el nombre completo del autor en negrita seguido de sus
+direcciones, separadas por punto y coma. Gabriel, Uriel y Marco tienen dos correos
+cada uno; Roberto queda al final con su única dirección. Se conserva la indicación
+independiente del autor de correspondencia.
 La figura de procedencia usa cinco pasos numerados y destaca los conteos verificados:
 2,008,738 filas de reportes de proyectos de SHCP, 189,432 localidades del Censo,
 4,950 filas municipio–categoría de CNGMD y 2,469 registros municipales de CONEVAL;
@@ -120,7 +123,7 @@ de nombres duplicados en las teselas locales, además de conservar los 253,346 r
 y sus cuatro estatus (145,246 terminados, 94,955 en ejecución, 11,793 cancelados y
 1,352 de otro estatus).
 
-Control final con Microsoft Word: **15 páginas y 9,597 palabras**, **40.23 %** sobre
+Control final con Microsoft Word: **15 páginas y 9,611 palabras**, **40.43 %** sobre
 las 6,844 palabras de v0; cero palabras nuevas sin amarillo. Se inspeccionaron las
 quince páginas renderizadas y se conservaron la plantilla, los contactos, las siete
 ecuaciones nativas y todos los valores de las tablas. Se compactó únicamente el
@@ -139,6 +142,9 @@ en `lakehouse/verificacion/evidencia_revision_publicacion_20261109.json`. La rev
 posterior de estados y siglas se registra en
 `lakehouse/verificacion/evidencia_revision_estados_20261109.json`; conserva la misma
 incidencia externa y los dos tags, verificados de nuevo antes de publicar.
+La asociación explícita entre nombres y correos se comprueba en
+`lakehouse/verificacion/evidencia_revision_contactos_20261109.json`: solo cambia
+ese párrafo del Word y las páginas 2 a 15 conservan un render idéntico.
 
 El generador histórico `paper/ijcopi/extender_v1.py` permanece en el repositorio
 original, pero su copia disponible precede las correcciones editoriales del 9 de

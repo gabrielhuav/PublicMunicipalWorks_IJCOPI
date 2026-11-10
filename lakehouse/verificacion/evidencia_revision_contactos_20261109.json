@@ -1,0 +1,57 @@
+{
+  "fecha_cliente": "2026-11-09",
+  "publicacion_autorizada_por_usuario": true,
+  "revision_anterior": "5f1348f6aa4ecd5b3e660ab3795b458a158b08f5",
+  "archivo": "paper/ijcopi/Paper37_IJCOPI_v1_extendida.docx",
+  "sha256": "b17797311b60be03cfd28865d33113ad951779f96bc953252e45c4d571f15425",
+  "contactos": [
+    {
+      "autor": "Gabriel Hurtado Avilés",
+      "correos": [
+        "ghurtadoa@ipn.mx",
+        "gabrielhuav@gmail.com"
+      ]
+    },
+    {
+      "autor": "Uriel González Casiano",
+      "correos": [
+        "ugonzalezc2400@alumno.ipn.mx",
+        "gonzalezcasianouriel@gmail.com"
+      ]
+    },
+    {
+      "autor": "Marco Tulio Maldonado Mejía",
+      "correos": [
+        "mmaldonadom2200@alumno.ipn.mx",
+        "marcotuliomm.s45@gmail.com"
+      ]
+    },
+    {
+      "autor": "Roberto Eswart Zagal Flores",
+      "correos": [
+        "rzagalf@ipn.mx"
+      ]
+    }
+  ],
+  "presentacion": "Cuatro lineas en el orden de autores; nombre completo en negrita y direcciones separadas por punto y coma",
+  "autor_correspondencia": "gabrielhuav@gmail.com",
+  "paginas_microsoft_word": 15,
+  "palabras_microsoft_word": 9611,
+  "palabras_base": 6844,
+  "ampliacion_porcentaje": 40.43,
+  "palabras_nuevas_sin_amarillo": 0,
+  "xml_cuerpo_solo_cambia_parrafo_contactos": true,
+  "v0_conservada": true,
+  "paginas_renderizadas": 15,
+  "pagina_1_inspeccionada_sin_desbordamientos": true,
+  "paginas_2_a_15_render_identico_a_revision_anterior": true,
+  "capitulo_springer": {
+    "enlaces_comprobados": 21,
+    "tags_comprobados": 2,
+    "tags_conservados": true,
+    "fallos_disponibilidad_http": 1,
+    "doi_editorial_no_disponible": "10.24275/AZC2026E1004",
+    "enlaces_congelados_modificados": false,
+    "detalle_incidencia": "evidencia_revision_estados_20261109.json"
+  }
+}
