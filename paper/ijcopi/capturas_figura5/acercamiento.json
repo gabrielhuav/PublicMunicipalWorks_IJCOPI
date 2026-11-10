@@ -1,0 +1,12 @@
+{
+  "overview_camera": "/?lang=en&modo=claro&vista=figura&capa=proyectos&estado=0&teselas=esri-gris&c=23.6000%2C-102.2000%2C5&ind=pagado_hab&ciclo=2024",
+  "detail_camera": "/?lang=en&modo=claro&vista=figura&capa=proyectos&estado=15&teselas=esri-gris&c=19.3000%2C-99.6000%2C8&ind=pagado_hab&ciclo=2024",
+  "locator_rectangle_pixels": [
+    905.699,
+    793.574,
+    1125.699,
+    915.824
+  ],
+  "linear_zoom_factor": 8.0,
+  "meaning": "Outline in A locates the viewport of B; B retains its State of Mexico filter."
+}

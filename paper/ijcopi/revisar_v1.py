@@ -249,14 +249,15 @@ def main():
     map_picture.xpath(".//wp:docPr")[0].set("descr", (
         "English application views of all 253,346 georeferenced projects reported "
         "for 2024 in Mexico and a closer view of the State of Mexico with 20,552 "
-        "of 21,335 records. The state view omits 783 records under the nearest-seat "
+        "of 21,335 records. A locator rectangle and arrow connect the national view "
+        "to the state view at eight times the map scale. The state view omits 783 records under the nearest-seat "
         "approximation. Both panels use the same four project-status colours."
     ))
     replace_text(map_caption, (
-        "Fig. 5. Projects in 2024. (A) All 253,346 georeferenced records with generalised "
-        "state boundaries and labels (Natural Earth, n.d.). (B) 20,552 of 21,335 State "
-        "of Mexico records (783 omitted by nearest-seat approximation). Colours show "
-        "status; coincident points can overlap. Basemap: Esri (n.d.)."
+        "Fig. 5. Projects in 2024. (A) 253,346 georeferenced records with generalised "
+        "state boundaries (Natural Earth, n.d.). The rectangle locates (B), an 8× zoom: "
+        "20,552 of 21,335 State of Mexico records (783 omitted by nearest-seat approximation). "
+        "Colours show status; points may overlap. Basemap: Esri (n.d.)."
     ))
 
     sources = find(doc, "The layer starts from nine files")

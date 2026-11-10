@@ -101,7 +101,12 @@ La Figura 5 ahora compara dos capturas reales de la aplicación: México con sus
 253,346 proyectos georreferenciados de 2024 y el acercamiento al Estado de México,
 con 20,552 puntos visibles de 21,335 registros. El pie explica los 783 omitidos por
 la aproximación de cabecera municipal más cercana. Rótulos, leyenda y captions en
-inglés. La nueva opción Todo México / All Mexico carga las 32 particiones con
+inglés. Un recuadro localiza en el panel A el área del panel B, unido mediante una
+flecha y el rótulo «Zoom to State of Mexico»; el marco del panel B usa el mismo color.
+El título y el pie indican el acercamiento de 8×. El recuadro se calcula en Mercator
+a partir de los centros, niveles de zoom y tamaño real de ambas capturas; representa
+el área visible de B, que conserva el filtro del Estado de México. Se documenta en
+`capturas_figura5/acercamiento.json`. La nueva opción Todo México / All Mexico carga las 32 particiones con
 progreso, plazo de espera y reintento, conserva
 filtros y dibuja una sola capa canvas interactiva. Pasaron las pruebas reproducibles
 de `scripts/pruebas/vista_nacional.cjs`: conteos contra JSON, filtros, cambios de vista,
@@ -123,7 +128,7 @@ de nombres duplicados en las teselas locales, además de conservar los 253,346 r
 y sus cuatro estatus (145,246 terminados, 94,955 en ejecución, 11,793 cancelados y
 1,352 de otro estatus).
 
-Control final con Microsoft Word: **15 páginas y 9,611 palabras**, **40.43 %** sobre
+Control final con Microsoft Word: **15 páginas y 9,613 palabras**, **40.46 %** sobre
 las 6,844 palabras de v0; cero palabras nuevas sin amarillo. Se inspeccionaron las
 quince páginas renderizadas y se conservaron la plantilla, los contactos, las siete
 ecuaciones nativas y todos los valores de las tablas. Se compactó únicamente el
@@ -145,6 +150,11 @@ incidencia externa y los dos tags, verificados de nuevo antes de publicar.
 La asociación explícita entre nombres y correos se comprueba en
 `lakehouse/verificacion/evidencia_revision_contactos_20261109.json`: solo cambia
 ese párrafo del Word y las páginas 2 a 15 conservan un render idéntico.
+La revisión del acercamiento se registra en
+`lakehouse/verificacion/evidencia_revision_zoom_20261109.json`: solo cambia el render
+de la página 12. En esta comprobación previa a la publicación respondieron los 21
+enlaces del capítulo de Springer y se conservaron los dos tags, sin fallos; el portal
+de `10.24275/AZC2026E1004` respondió HTTP 200.
 
 El generador histórico `paper/ijcopi/extender_v1.py` permanece en el repositorio
 original, pero su copia disponible precede las correcciones editoriales del 9 de

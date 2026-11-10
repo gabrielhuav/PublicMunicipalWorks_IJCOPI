@@ -1,0 +1,54 @@
+{
+  "fecha_cliente": "2026-11-09",
+  "publicacion_autorizada_por_usuario": true,
+  "revision_anterior": "c1c8220",
+  "archivo": "paper/ijcopi/Paper37_IJCOPI_v1_extendida.docx",
+  "sha256": "fe90573a75fdb509d99d0e86b7094e49889ccdf8685d0fa3491635fd3ea82dca",
+  "paginas_microsoft_word": 15,
+  "palabras_microsoft_word": 9613,
+  "palabras_base": 6844,
+  "ampliacion_porcentaje": 40.46,
+  "palabras_nuevas_sin_amarillo": 0,
+  "paginas_renderizadas": 15,
+  "pagina_12_inspeccionada": true,
+  "otras_14_paginas_render_identico": true,
+  "cambios_word": [
+    "Imagen de Figura 5 y texto alternativo",
+    "Pie de Figura 5"
+  ],
+  "otros_parrafos_tablas_y_ecuaciones_xml_identicos": true,
+  "capturas_sin_cambios": true,
+  "aplicacion_sin_cambios": true,
+  "acercamiento": {
+    "overview_camera": "/?lang=en&modo=claro&vista=figura&capa=proyectos&estado=0&teselas=esri-gris&c=23.6000%2C-102.2000%2C5&ind=pagado_hab&ciclo=2024",
+    "detail_camera": "/?lang=en&modo=claro&vista=figura&capa=proyectos&estado=15&teselas=esri-gris&c=19.3000%2C-99.6000%2C8&ind=pagado_hab&ciclo=2024",
+    "locator_rectangle_pixels": [
+      905.699,
+      793.574,
+      1125.699,
+      915.824
+    ],
+    "linear_zoom_factor": 8.0,
+    "meaning": "Outline in A locates the viewport of B; B retains its State of Mexico filter."
+  },
+  "anotaciones": [
+    "Recuadro de localizacion en A",
+    "Flecha a B",
+    "Marco de B del mismo color",
+    "Zoom to State of Mexico",
+    "8× zoom"
+  ],
+  "conteos": {
+    "nacional": 253346,
+    "estado_mexico_visibles": 20552,
+    "estado_mexico_total": 21335,
+    "omitidos_por_aproximacion": 783
+  },
+  "capitulo_springer": {
+    "enlaces_comprobados": 21,
+    "tags_comprobados": 2,
+    "tags_conservados": true,
+    "fallos": 0,
+    "doi_10_24275_AZC2026E1004_http": 200
+  }
+}
