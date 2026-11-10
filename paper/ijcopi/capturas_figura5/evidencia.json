@@ -9,19 +9,151 @@
       "visible": 253346,
       "total": 253346,
       "selectedState": "0",
-      "attribution": " Leaflet | Tiles © Esri — Esri, HERE, Garmin, © OpenStreetMap contributors, and the GIS User Community",
+      "attribution": " Leaflet | Natural Earth · generalized state boundaries, Tiles © Esri — Esri, HERE, Garmin, © OpenStreetMap contributors, and the GIS User Community",
       "locationNote": "",
       "loadedTiles": 12,
-      "canvases": 2,
-      "renderingMode": "agrupado",
+      "canvases": 3,
+      "renderingMode": "individual",
+      "pointRadius": 1,
+      "stateBoundaries": 32,
+      "stateLabels": [
+        {
+          "nombre": "Aguascalientes",
+          "texto": "Aguascalientes"
+        },
+        {
+          "nombre": "Baja California",
+          "texto": "Baja California"
+        },
+        {
+          "nombre": "Baja California Sur",
+          "texto": "Baja California Sur"
+        },
+        {
+          "nombre": "Campeche",
+          "texto": "Campeche"
+        },
+        {
+          "nombre": "Chiapas",
+          "texto": "Chiapas"
+        },
+        {
+          "nombre": "Chihuahua",
+          "texto": "Chihuahua"
+        },
+        {
+          "nombre": "Mexico City",
+          "texto": "Mexico City"
+        },
+        {
+          "nombre": "Coahuila",
+          "texto": "Coahuila"
+        },
+        {
+          "nombre": "Colima",
+          "texto": "Colima"
+        },
+        {
+          "nombre": "Durango",
+          "texto": "Durango"
+        },
+        {
+          "nombre": "Guanajuato",
+          "texto": "Guanajuato"
+        },
+        {
+          "nombre": "Guerrero",
+          "texto": "Guerrero"
+        },
+        {
+          "nombre": "Hidalgo",
+          "texto": "Hidalgo"
+        },
+        {
+          "nombre": "Jalisco",
+          "texto": "Jalisco"
+        },
+        {
+          "nombre": "Michoacán",
+          "texto": "Michoacán"
+        },
+        {
+          "nombre": "Morelos",
+          "texto": "Mor."
+        },
+        {
+          "nombre": "State of Mexico",
+          "texto": "Méx."
+        },
+        {
+          "nombre": "Nayarit",
+          "texto": "Nayarit"
+        },
+        {
+          "nombre": "Nuevo León",
+          "texto": "Nuevo León"
+        },
+        {
+          "nombre": "Oaxaca",
+          "texto": "Oaxaca"
+        },
+        {
+          "nombre": "Puebla",
+          "texto": "Puebla"
+        },
+        {
+          "nombre": "Querétaro",
+          "texto": "Querétaro"
+        },
+        {
+          "nombre": "Quintana Roo",
+          "texto": "Quintana Roo"
+        },
+        {
+          "nombre": "San Luis Potosí",
+          "texto": "San Luis Potosí"
+        },
+        {
+          "nombre": "Sinaloa",
+          "texto": "Sinaloa"
+        },
+        {
+          "nombre": "Sonora",
+          "texto": "Sonora"
+        },
+        {
+          "nombre": "Tabasco",
+          "texto": "Tabasco"
+        },
+        {
+          "nombre": "Tamaulipas",
+          "texto": "Tamaulipas"
+        },
+        {
+          "nombre": "Tlaxcala",
+          "texto": "Tlax."
+        },
+        {
+          "nombre": "Veracruz",
+          "texto": "Veracruz"
+        },
+        {
+          "nombre": "Yucatán",
+          "texto": "Yucatán"
+        },
+        {
+          "nombre": "Zacatecas",
+          "texto": "Zacatecas"
+        }
+      ],
       "statusTotals": [
         145246,
         94955,
         11793,
         1352
       ],
-      "groupedCells": 144,
-      "aggregationNote": "Completed · 145,246 (57.3%)In progress · 94,955 (37.5%)Cancelled · 11,793 (4.7%)Other status · 1,352 (0.5%)Grouped view: each circle combines nearby projects; sectors show their status shares. Size uses a logarithmic count scale. Zoom in for individual projects.Showing 253,346 of 253,346 projects in Mexico.",
+      "groupedCells": 0,
+      "aggregationNote": "Completed · 145,246 (57.3%)In progress · 94,955 (37.5%)Cancelled · 11,793 (4.7%)Other status · 1,352 (0.5%)Individual projects. Coincident points can overlap; use the counts to compare statuses.Showing 253,346 of 253,346 projects in Mexico.",
       "statusLabels": [
         "Completed 145,246",
         "In progress 94,955",
@@ -38,11 +170,55 @@
       "visible": 20552,
       "total": 21335,
       "selectedState": "15",
-      "attribution": " Leaflet | Tiles © Esri — Esri, HERE, Garmin, © OpenStreetMap contributors, and the GIS User Community",
+      "attribution": " Leaflet | Tiles © Esri — Esri, HERE, Garmin, © OpenStreetMap contributors, and the GIS User Community, Natural Earth · generalized state boundaries",
       "locationNote": "783 records matching the filters are not drawn: their nearest municipal seat is in another state. This is an approximation, not a check against administrative boundaries.",
       "loadedTiles": 8,
-      "canvases": 2,
+      "canvases": 3,
       "renderingMode": "individual",
+      "pointRadius": 2,
+      "stateBoundaries": 32,
+      "stateLabels": [
+        {
+          "nombre": "Mexico City",
+          "texto": "Mexico City"
+        },
+        {
+          "nombre": "Guanajuato",
+          "texto": "Guanajuato"
+        },
+        {
+          "nombre": "Guerrero",
+          "texto": "Guerrero"
+        },
+        {
+          "nombre": "Hidalgo",
+          "texto": "Hidalgo"
+        },
+        {
+          "nombre": "Michoacán",
+          "texto": "Michoacán"
+        },
+        {
+          "nombre": "Morelos",
+          "texto": "Morelos"
+        },
+        {
+          "nombre": "State of Mexico",
+          "texto": "State of Mexico"
+        },
+        {
+          "nombre": "Puebla",
+          "texto": "Puebla"
+        },
+        {
+          "nombre": "Querétaro",
+          "texto": "Querétaro"
+        },
+        {
+          "nombre": "Tlaxcala",
+          "texto": "Tlaxcala"
+        }
+      ],
       "statusTotals": [
         8209,
         11707,

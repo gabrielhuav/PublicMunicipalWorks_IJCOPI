@@ -62,12 +62,16 @@ files into one interactive canvas with all 253,346 georeferenced projects of 202
 the per-state views; filters stay selected when switching between the country and a state. Downloads
 show progress and can be retried, and successful partitions are reused during the visit. National
 display includes every point; state display retains the nearest-municipal-seat approximation.
-At zoom levels 4–7, nearby projects are grouped in fixed 32-pixel Mercator cells. Each circle's
-sectors show the exact status shares of its projects; its area follows `1 + log2(project count)`.
-At zoom 8 and above, individual points use a deterministic order independent of status. This avoids
-the cancellation colour covering other statuses in dense areas. The legend gives exact counts and
-percentages, and selecting a group reveals its composition and zooms in. Figure 5 in the journal
-manuscript captures the national overview and the State of Mexico view.
+Individual projects are the default at every zoom, with a 1-pixel radius at the national zoom of 5
+and a deterministic drawing order independent of status. Generalized state boundaries and names
+from the bundled Natural Earth 5.1.2 reference appear above the points, with a white halo for contrast.
+The reference can be hidden (`?limites=0`); it does not change the nearest-seat state filter. It loads
+independently, with retry on failure. Local basemap state labels are suppressed while this overlay
+is active, avoiding duplicate names. Figure 5 captures this national overview and the State of Mexico.
+Coincident points can overlap; the legend gives the exact counts and percentages. **Status summaries**
+is optional (`?agrupado=1`): at zoom levels 4–7 it groups every filtered record in fixed 32-pixel
+Mercator cells. Sectors show exact status shares; symbol area follows `1 + log2(project count)`.
+Selecting a group reveals its counts and zooms in; zoom 8 and above always shows individual points.
 Projects can be filtered by status, by flags C1 to C4 and by evidence
 (documents, PDF, image, or a start date after the first release of Esri's imagery archive). The search
 box finds states, municipalities, projects and folios on the site, and any place through OpenStreetMap

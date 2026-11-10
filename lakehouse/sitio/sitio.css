@@ -395,6 +395,15 @@ details summary { cursor: pointer; color: var(--marca); margin-top: .4rem; }
 
 /* Los puntos nacionales comparten un solo canvas; la carga mantiene visibles los controles. */
 .proyectos-canvas { position: absolute; pointer-events: none; }
+.estados-canvas { position: absolute; pointer-events: none; }
+.seccion .opcion-mapa { display: flex; align-items: center; gap: .5rem; margin-top: .6rem;
+  font-size: .81rem; font-weight: 500; cursor: pointer; }
+.opcion-mapa input { width: 16px; height: 16px; flex: none; margin: 0; accent-color: var(--marca); }
+.error-limites { position: absolute; z-index: 1001; top: 65px; right: 62px; max-width: 330px;
+  padding: .6rem .8rem; border: 1px solid var(--aviso-borde); border-radius: var(--r-s);
+  background: var(--aviso); color: var(--texto); box-shadow: var(--sombra); font-size: .8rem; }
+.error-limites .enlace-boton { display: block; margin-top: .3rem; }
+body.figura .error-limites { top: 12px; right: 12px; }
 .carga-proyectos { margin-top: .75rem; padding: .7rem; border: 1px solid var(--borde);
   border-radius: var(--r-s); background: var(--superficie-2); }
 .carga-proyectos p { margin: 0 0 .45rem; font-size: .8rem; color: var(--texto-2); }

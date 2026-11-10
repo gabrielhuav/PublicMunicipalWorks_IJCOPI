@@ -27,7 +27,7 @@ def map_figure():
     for x, name, title in [(20, "national", "A  Mexico"), (1820, "state_of_mexico", "B  State of Mexico")]:
         view = views[name]
         draw.text((x, 8), title, font=font(68, True), fill="#19364C")
-        count = f"{view['visible']:,} projects · grouped view" if name == "national" else f"{view['visible']:,} of {view['total']:,} projects shown"
+        count = f"{view['visible']:,} georeferenced projects" if name == "national" else f"{view['visible']:,} of {view['total']:,} projects shown"
         draw.text((x, 85), count + " · 2024", font=font(60), fill="#435660")
         with Image.open(captures / view["image"]) as screenshot:
             panel = screenshot.convert("RGB").resize((1760, 978), Image.Resampling.LANCZOS)
@@ -38,7 +38,7 @@ def map_figure():
                               (2110, "Cancelled", "#c62828"), (2890, "Other status", "#7a7a7a")]:
         draw.ellipse((x, 1184, x + 38, 1222), fill=colour)
         draw.text((x + 58, 1170), label, font=font(60), fill="#18242B")
-    draw.text((60, 1260), "National groups: sectors show status shares; size uses a logarithmic count scale · Basemap: Esri", font=font(44), fill="#435660")
+    draw.text((60, 1260), "Project locations · Generalised state boundaries and names: Natural Earth · Basemap: Esri", font=font(44), fill="#435660")
     output = HERE / "figura5_mexico_estado_mexico.png"
     image.save(output, optimize=True)
     print(output)

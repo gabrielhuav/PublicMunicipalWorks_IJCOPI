@@ -89,8 +89,10 @@ de datos; D, resultados destacados. Las cuatro conservan los conteos verificados
 letra mínima equivalente a 8 puntos al imprimir a 6.7 pulgadas. Sus generadores leen
 las evidencias del repositorio. `comparacion_A_B_C_D.png` permite cotejarlas juntas;
 Gabriel eligió la alternativa C el 9 de noviembre; es ahora la Figura 4 del Word y
-el SVG/PNG canónico. Su pie define SHCP, INEGI, CNGMD, CONEVAL, SHA-256, MB e IDs
-en inglés. Los generadores y las cuatro alternativas se conservan.
+el SVG/PNG canónico. Su pie da primero el nombre institucional original en español,
+seguido de la sigla y su traducción al inglés, para SHCP, INEGI, CNGMD y CONEVAL.
+También define SHA-256, MB e IDs. La primera mención de SHCP en la introducción sigue
+el mismo orden. Los generadores y las cuatro alternativas se conservan.
 
 La Figura 5 ahora compara dos capturas reales de la aplicación: México con sus
 253,346 proyectos georreferenciados de 2024 y el acercamiento al Estado de México,
@@ -101,17 +103,24 @@ progreso, plazo de espera y reintento, conserva
 filtros y dibuja una sola capa canvas interactiva. Pasaron las pruebas reproducibles
 de `scripts/pruebas/vista_nacional.cjs`: conteos contra JSON, filtros, cambios de vista,
 caché, acercamiento, búsqueda, clic sobre el mapa, carreras y fallos con reintento.
-Sin errores JavaScript. La vista lejana ya no dibuja los cancelados por encima de
-los otros estatus: agrupa todos los registros filtrados en celdas Mercator de 32 px
-hasta zoom 7, con sectores proporcionales al conteo de cada estatus y área del símbolo
-proporcional a `1 + log2(n)`. Desde zoom 8 se ven puntos individuales en orden
-determinista independiente del estatus. La leyenda declara los modos, conteos,
-porcentajes y escala; los grupos permiten consultar sus recuentos y acercarse.
-Las pruebas comprueban la conservación exacta de los 253,346 registros y sus cuatro
-estatus (145,246 terminados, 94,955 en ejecución, 11,793 cancelados y 1,352 de otro
-estatus), además del paso de grupos a puntos individuales.
+Sin errores JavaScript. A petición de Gabriel, la Figura 5 A vuelve a mostrar puntos
+individuales pequeños a escala nacional (radio de 1 px en zoom 5), en orden
+determinista independiente del estatus. Los límites y nombres estatales generalizados
+de Natural Earth 5.1.2 se dibujan por encima, con halo blanco. Las etiquetas de los
+estados alargados se colocan en su interior para facilitar su lectura. Se añadió la
+referencia de Natural Earth al Word. Esta capa es orientativa y no interviene en los
+filtros. Puede ocultarse y su carga tiene reintento independiente; la base local
+suprime sus nombres mientras la referencia superior está activa para evitar duplicados.
+Los resúmenes por estatus quedan como opción (`agrupado=1`): agrupan todos los registros
+filtrados en celdas Mercator de 32 px hasta zoom 7, con sectores proporcionales al conteo
+y área proporcional a `1 + log2(n)`. Desde zoom 8 siempre se ven puntos individuales.
+La leyenda da los conteos y porcentajes exactos, pues los puntos coincidentes pueden
+superponerse. Las pruebas comprueban los 32 nombres, el orden de capas y la ausencia
+de nombres duplicados en las teselas locales, además de conservar los 253,346 registros
+y sus cuatro estatus (145,246 terminados, 94,955 en ejecución, 11,793 cancelados y
+1,352 de otro estatus).
 
-Control final con Microsoft Word: **15 páginas y 9,614 palabras**, **40.47 %** sobre
+Control final con Microsoft Word: **15 páginas y 9,597 palabras**, **40.23 %** sobre
 las 6,844 palabras de v0; cero palabras nuevas sin amarillo. Se inspeccionaron las
 quince páginas renderizadas y se conservaron la plantilla, los contactos, las siete
 ecuaciones nativas y todos los valores de las tablas. Se compactó únicamente el
@@ -126,7 +135,10 @@ y validó los enlaces salvo la disponibilidad del portal editorial de
 Handle respondió 200 y `responseCode: 1`, con la URL editorial esperada. El chequeo
 HTTP mantiene esa incidencia; no se alteró el enlace congelado ni se presenta como
 una comprobación de disponibilidad aprobada. La verificación y sus límites constan
-en `lakehouse/verificacion/evidencia_revision_publicacion_20261109.json`.
+en `lakehouse/verificacion/evidencia_revision_publicacion_20261109.json`. La revisión
+posterior de estados y siglas se registra en
+`lakehouse/verificacion/evidencia_revision_estados_20261109.json`; conserva la misma
+incidencia externa y los dos tags, verificados de nuevo antes de publicar.
 
 El generador histórico `paper/ijcopi/extender_v1.py` permanece en el repositorio
 original, pero su copia disponible precede las correcciones editoriales del 9 de

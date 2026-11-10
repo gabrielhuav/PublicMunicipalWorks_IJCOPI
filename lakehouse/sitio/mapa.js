@@ -5,7 +5,8 @@
    se bajan por partes: los municipios al abrir, los puntos de un estado al elegirlo (los 32 en la
    vista nacional) y el detalle al abrir un proyecto. ?estado=0 o todos selecciona todo México.
    La URL admite ?ind=, ?ciclo=, ?estado=, ?estatus=,
-   ?evidencia=, ?marcas=1, ?folio=, ?comparar=1, ?c=lat,lng,zoom, ?lang=, ?teselas= y ?vista=figura. */
+   ?evidencia=, ?marcas=1, ?agrupado=1, ?limites=0, ?folio=, ?comparar=1,
+   ?c=lat,lng,zoom, ?lang=, ?teselas= y ?vista=figura. */
 (function () {
   'use strict';
 
@@ -60,6 +61,13 @@
       'agg.individual': 'Vista de proyectos individuales. Los puntos que coinciden pueden superponerse; consulta los conteos de cada estatus.',
       'agg.total': '{n} proyectos en este grupo',
       'agg.detalle': 'El mapa se ha acercado. Sigue acercándote para explorar proyectos individuales.',
+      'agg.control': 'Resúmenes por estatus',
+      'agg.control.nota': 'Agrupa los puntos solo en las vistas lejanas.',
+      'lim.titulo': 'Referencia geográfica',
+      'lim.control': 'Límites y nombres de los estados',
+      'lim.nota': 'Límites generalizados de Natural Earth 5.1.2. Son una referencia visual; no se usan para filtrar proyectos.',
+      'lim.error': 'No se pudieron cargar los límites y nombres de los estados. Los proyectos siguen disponibles.',
+      'lim.reintentar': 'Reintentar límites',
       'o.titulo': 'De dónde sale cada capa', 'o.texto': '{sql}, en {motor}: {filas} filas, exportadas el {fecha}. SHA-256 {hash}…',
       'o.parte': 'Se ve el archivo {archivo}, uno de {n}.', 'o.sql': 'Ver la consulta', 'o.cmd': 'Para ver lo mismo en la base de datos:',
       'o.todas': 'La vista nacional reúne los {n} archivos estatales.',
@@ -150,6 +158,13 @@
       'agg.individual': 'Individual projects. Coincident points can overlap; use the counts to compare statuses.',
       'agg.total': '{n} projects in this group',
       'agg.detalle': 'The map has zoomed in. Keep zooming to explore individual projects.',
+      'agg.control': 'Status summaries',
+      'agg.control.nota': 'Groups points only at distant zoom levels.',
+      'lim.titulo': 'Geographic reference',
+      'lim.control': 'State boundaries and names',
+      'lim.nota': 'Generalized boundaries from Natural Earth 5.1.2. They provide visual context and are not used to filter projects.',
+      'lim.error': 'State boundaries and names could not be loaded. Projects remain available.',
+      'lim.reintentar': 'Retry boundaries',
       'o.titulo': 'Where each layer comes from', 'o.texto': '{sql}, on {motor}: {filas} rows, exported on {fecha}. SHA-256 {hash}…',
       'o.parte': 'The map shows file {archivo}, one of {n}.', 'o.sql': 'Show the query', 'o.cmd': 'To see the same result in the database:',
       'o.todas': 'The national view combines all {n} state files.',
@@ -262,12 +277,15 @@
     estatus: lista('estatus', [0, 1, 2, 3]),
     evidencia: lista('evidencia', EVIDENCIAS),
     soloMarcas: q.get('marcas') === '1',
+    agrupado: q.get('agrupado') === '1',
+    limites: q.get('limites') !== '0',
     vista: q.has('estado') || q.get('capa') === 'proyectos' ? 'proyectos' : 'municipios',
   };
   const datos = {};
   const puntosPorEstado = new Map(), detallesPorMunicipio = new Map();
   let indicePuntos = null;
-  let manifiesto, mapa, capaMunicipios, capaPuntos = null, puntos = [], abierto = null, pedido = 0;
+  let manifiesto, mapa, capaMunicipios, capaPuntos = null, capaLimites = null, puntos = [], abierto = null, pedido = 0;
+  let referenciaEstados = null, pedidoLimites = null;
   const normal = s => String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
   const sitio = id => document.getElementById(id);
 
@@ -283,6 +301,8 @@
     poner('estatus', !estado.estatus.size ? 'ninguno' : estado.estatus.size < 4 ? [...estado.estatus].join(',') : null);
     poner('evidencia', estado.evidencia.size ? [...estado.evidencia].join(',') : null);
     poner('marcas', estado.soloMarcas ? '1' : null);
+    poner('agrupado', estado.agrupado ? '1' : null);
+    poner('limites', estado.limites ? null : '0');
     poner('folio', abierto && abierto.folio ? abierto.folio : null);
     poner('comparar', sitio('comparar').hidden ? null : '1');
     if (mapa) {
@@ -358,7 +378,7 @@
       const conteos = capaPuntos ? capaPuntos.conteos : [0, 0, 0, 0];
       const total = conteos.reduce((a, b) => a + b, 0);
       [0, 1, 2, 3].forEach(g => item(colorEstatus(g), `${t('e.' + g)} · ${S.numero(conteos[g])} (${S.numero(total ? 100 * conteos[g] / total : 0, 1)}%)`));
-      filas.push(`<p class="nota">${S.esc(t(mapa.getZoom() <= 7 ? 'agg.nota' : 'agg.individual'))}</p>`);
+      filas.push(`<p class="nota">${S.esc(t(estado.agrupado && mapa.getZoom() <= 7 ? 'agg.nota' : 'agg.individual'))}</p>`);
       if (capaPuntos) filas.push(`<p class="nota">${S.esc(t('f.conteo', { n: S.numero(capaPuntos.puntos.length), total: S.numero(puntos.length), estado: nombreEstado(estado.entidad) }))}</p>`);
       sitio('leyenda').innerHTML = filas.join('');
       return;
@@ -474,12 +494,13 @@
     c.hidden = !texto;
   }
 
-  /* La vista lejana conserva todos los proyectos en celdas Mercator fijas de 32 píxeles.
+  /* Los puntos individuales son la vista predeterminada a cualquier escala. La opción de
+     resúmenes conserva todos los proyectos en celdas Mercator fijas de 32 píxeles.
      La composición de cada círculo es lineal por estatus; su área crece como 1 + log2(n),
      lo que mantiene visibles los grupos pequeños sin que un grupo denso tape a sus vecinos.
      Acercarse revela puntos individuales en orden determinista, independiente del estatus. */
   const TAM_CELDA = 32;
-  const radioPuntos = () => (mapa.getZoom() <= 10 ? 2 : mapa.getZoom() <= 13 ? 3 : 4);
+  const radioPuntos = () => (mapa.getZoom() <= 5 ? 1 : mapa.getZoom() <= 7 ? 1.25 : mapa.getZoom() <= 10 ? 2 : mapa.getZoom() <= 13 ? 3 : 4);
   const radioGrupo = n => 3 * Math.sqrt(1 + Math.log2(n));
   function agruparPuntos(lista, zoom, celda = TAM_CELDA) {
     const grupos = new Map(), escala = 2 ** zoom;
@@ -544,9 +565,10 @@
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       const zoom = this._map.getZoom(), origen = this._map.getPixelBounds().min, escala = 2 ** zoom, r = radioPuntos();
       canvas.dataset.zoom = zoom;
+      canvas.dataset.radio = r;
       ctx.lineWidth = 0.8; ctx.strokeStyle = S.oscuro() ? '#111' : '#fff';
       this.zoomDibujado = zoom;
-      if (zoom <= 7) {
+      if (estado.agrupado && zoom <= 7) {
         this.grupos = agruparPuntos(this.puntos, zoom);
         canvas.dataset.modo = 'agrupado';
         canvas.dataset.celda = TAM_CELDA;
@@ -574,13 +596,14 @@
         const x = p.x0 * escala - origen.x, y = p.y0 * escala - origen.y;
         if (x < -r || y < -r || x > tam.x + r || y > tam.y + r) continue;
         ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2);
-        ctx.fillStyle = colorEstatus(p.g); ctx.fill(); ctx.stroke();
+        ctx.fillStyle = colorEstatus(p.g); ctx.fill();
+        if (zoom > 7) ctx.stroke();
       }
     },
     elegir(ev) {
       if (this.zoomDibujado !== this._map.getZoom()) return;
       const origen = this._map.getPixelBounds().min, escala = 2 ** this._map.getZoom();
-      if (this._map.getZoom() <= 7) {
+      if (estado.agrupado && this._map.getZoom() <= 7) {
         const x = ev.containerPoint.x + origen.x, y = ev.containerPoint.y + origen.y;
         const grupo = this.grupos.find(g => (g.x - x) ** 2 + (g.y - y) ** 2 <= (radioGrupo(g.n) + 3) ** 2);
         if (!grupo) return;
@@ -602,6 +625,179 @@
       if (elegido) abrirProyecto(elegido);
     },
   });
+
+  /* Referencia cartográfica independiente de los proyectos: Natural Earth 5.1.2,
+     dominio público, ya incluido en mapa-base/mexico.json. Sus líneas generalizadas
+     nunca participan en estadoEn() ni en el filtro por cabecera municipal cercana. */
+  const atribucionEstados = '<a href="https://www.naturalearthdata.com/">Natural Earth</a> · '
+    + (en ? 'generalized state boundaries' : 'límites estatales generalizados');
+  const nombreReferencia = n => en && n === 'México' ? 'State of Mexico'
+    : en && n === 'Ciudad de México' ? 'Mexico City' : n;
+  const ABREVIATURAS = { Aguascalientes: 'Ags.', Colima: 'Col.', Guanajuato: 'Gto.', Hidalgo: 'Hgo.',
+    México: en ? 'Méx.' : 'Edo. Méx.', Morelos: 'Mor.', Querétaro: 'Qro.', Tlaxcala: 'Tlax.',
+    'Ciudad de México': 'CDMX' };
+  // Sólo posiciones de rótulos: las anclas originales de estos estados alargados
+  // caen en sus extremos y dificultan reconocerlos a escala nacional.
+  const ANCLAS_ROTULOS = { 'Baja California': [-115.4, 30.2],
+    'Baja California Sur': [-111.8, 25.5], Sonora: [-110.5, 29.4] };
+  function prepararReferencia(doc) {
+    if (!doc || !Array.isArray(doc.lugares) || doc.lugares.length !== 32
+      || !Array.isArray(doc.capas?.limite) || !doc.capas.limite.length || !Array.isArray(doc.ciudad)) {
+      throw new Error('Referencia estatal incompleta');
+    }
+    const divisor = doc.q || 100000;
+    const proyectar = (lon, lat) => {
+      const seno = Math.sin(lat * Math.PI / 180);
+      return [(lon + 180) / 360 * 256, (0.5 - Math.log((1 + seno) / (1 - seno)) / (4 * Math.PI)) * 256];
+    };
+    const decodificar = enteros => {
+      if (!Array.isArray(enteros) || enteros.length % 2) throw new Error('Línea estatal inválida');
+      let lon = 0, lat = 0;
+      const linea = [];
+      for (let i = 0; i < enteros.length; i += 2) {
+        lon += enteros[i]; lat += enteros[i + 1];
+        linea.push(proyectar(lon / divisor, lat / divisor));
+      }
+      return linea;
+    };
+    return {
+      lineas: [...doc.ciudad, ...doc.capas.limite].map(decodificar),
+      nombres: doc.lugares.map(([original, , lon, lat]) => {
+        const nombre = original.startsWith('San Luis Potos') ? 'San Luis Potosí' : original;
+        return { nombre, texto: nombreReferencia(nombre),
+          posicion: proyectar(...(ANCLAS_ROTULOS[nombre] || [lon / divisor, lat / divisor])) };
+      }),
+    };
+  }
+
+  const CapaEstados = L.Layer.extend({
+    initialize(referencia) { this.referencia = referencia; },
+    onAdd(m) {
+      this._canvas = L.DomUtil.create('canvas', 'estados-canvas leaflet-zoom-hide');
+      this._canvas.setAttribute('aria-hidden', 'true');
+      m.getPane('referencia-estados').appendChild(this._canvas);
+      m.attributionControl.addAttribution(atribucionEstados);
+      window.MapaTeselas?.rotulosEstados(false);
+      this.redibujar();
+    },
+    onRemove(m) {
+      cancelAnimationFrame(this._frame);
+      m.attributionControl.removeAttribution(atribucionEstados);
+      window.MapaTeselas?.rotulosEstados(true);
+      L.DomUtil.remove(this._canvas);
+      this._canvas = null;
+    },
+    getEvents() { return { moveend: this.redibujar, zoomend: this.redibujar, resize: this.redibujar }; },
+    redibujar() {
+      if (!this._map) return;
+      cancelAnimationFrame(this._frame);
+      this._frame = requestAnimationFrame(() => this.dibujar());
+    },
+    dibujar() {
+      if (!this._map || !this._canvas) return;
+      const tam = this._map.getSize(), dpr = Math.min(window.devicePixelRatio || 1, 2);
+      const canvas = this._canvas, ctx = canvas.getContext('2d'), zoom = this._map.getZoom();
+      const origen = this._map.getPixelBounds().min, escala = 2 ** zoom;
+      canvas.width = Math.round(tam.x * dpr); canvas.height = Math.round(tam.y * dpr);
+      canvas.style.width = `${tam.x}px`; canvas.style.height = `${tam.y}px`;
+      L.DomUtil.setPosition(canvas, this._map.containerPointToLayerPoint([0, 0]));
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      canvas.dataset.estados = this.referencia.nombres.length;
+      canvas.dataset.nombres = JSON.stringify(this.referencia.nombres.map(n => n.texto));
+      canvas.dataset.lineas = this.referencia.lineas.length;
+      canvas.dataset.zoom = zoom;
+      ctx.lineJoin = 'round'; ctx.lineCap = 'round';
+      // El halo blanco y la línea oscura quedan por encima de todos los puntos.
+      const trazar = () => {
+        ctx.beginPath();
+        for (const linea of this.referencia.lineas) {
+          linea.forEach(([x, y], i) => ctx[i ? 'lineTo' : 'moveTo'](x * escala - origen.x, y * escala - origen.y));
+        }
+      };
+      trazar(); ctx.strokeStyle = 'rgba(255,255,255,.95)'; ctx.lineWidth = 3.8; ctx.stroke();
+      ctx.strokeStyle = '#343a40'; ctx.lineWidth = 1.25; ctx.stroke();
+
+      const fuente = zoom <= 4 ? 10 : zoom <= 5 ? 11.5 : zoom <= 7 ? 12 : 13;
+      ctx.font = `650 ${fuente}px system-ui, sans-serif`;
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      const cajas = [], etiquetas = [];
+      const separar = texto => {
+        if (ctx.measureText(texto).width <= 98) return [texto];
+        const palabras = texto.split(' ');
+        let mejor = [texto], ancho = Infinity;
+        for (let i = 1; i < palabras.length; i++) {
+          const lineas = [palabras.slice(0, i).join(' '), palabras.slice(i).join(' ')];
+          const a = Math.max(...lineas.map(l => ctx.measureText(l).width));
+          if (a < ancho) { ancho = a; mejor = lineas; }
+        }
+        return mejor;
+      };
+      const cruza = (a, b) => a[0] < b[2] && a[2] > b[0] && a[1] < b[3] && a[3] > b[1];
+      // Cajas en píxeles mundiales: al mover el mapa los nombres no saltan entre lugares.
+      for (const n of this.referencia.nombres) {
+        const ax = n.posicion[0] * escala, ay = n.posicion[1] * escala;
+        if (ax - origen.x < -130 || ax - origen.x > tam.x + 130 || ay - origen.y < -80 || ay - origen.y > tam.y + 80) continue;
+        const opciones = [n.texto];
+        if (ABREVIATURAS[n.nombre]) opciones.push(ABREVIATURAS[n.nombre]);
+        let elegida = null;
+        const desplazamientos = [[0, 0], [0, -17], [0, 17], [-18, 0], [18, 0], [-18, -17], [18, -17], [-18, 17], [18, 17]];
+        for (const radio of [34, 50, 70, 90]) {
+          for (let a = 0; a < 8; a++) desplazamientos.push([Math.cos(a * Math.PI / 4) * radio, Math.sin(a * Math.PI / 4) * radio]);
+        }
+        for (const [dx, dy] of desplazamientos) {
+          for (const texto of opciones) {
+            const lineas = separar(texto), ancho = Math.max(...lineas.map(l => ctx.measureText(l).width));
+            const alto = lineas.length * (fuente + 1), x = ax + dx, y = ay + dy;
+            const caja = [x - ancho / 2 - 4, y - alto / 2 - 3, x + ancho / 2 + 4, y + alto / 2 + 3];
+            if (cajas.some(c => cruza(c, caja))) continue;
+            elegida = { nombre: n.texto, texto, lineas, x, y, ax, ay, caja };
+            break;
+          }
+          if (elegida) break;
+        }
+        if (!elegida) continue;
+        cajas.push(elegida.caja); etiquetas.push(elegida);
+      }
+      // Primero las guías; luego cada nombre con halo para conservar su legibilidad.
+      for (const e of etiquetas) {
+        if (Math.hypot(e.x - e.ax, e.y - e.ay) < 16) continue;
+        ctx.beginPath(); ctx.moveTo(e.ax - origen.x, e.ay - origen.y); ctx.lineTo(e.x - origen.x, e.y - origen.y);
+        ctx.strokeStyle = '#fff'; ctx.lineWidth = 2.5; ctx.stroke();
+        ctx.strokeStyle = '#59616a'; ctx.lineWidth = .65; ctx.stroke();
+      }
+      for (const e of etiquetas) {
+        e.lineas.forEach((linea, i) => {
+          const x = e.x - origen.x, y = e.y - origen.y + (i - (e.lineas.length - 1) / 2) * (fuente + 1);
+          ctx.strokeStyle = '#fff'; ctx.lineWidth = 3.5; ctx.strokeText(linea, x, y);
+          ctx.fillStyle = '#202b36'; ctx.fillText(linea, x, y);
+        });
+      }
+      canvas.dataset.etiquetas = JSON.stringify(etiquetas.map(e => ({ nombre: e.nombre, texto: e.texto })));
+    },
+  });
+
+  async function mostrarReferencia() {
+    sitio('errorLimites').hidden = true;
+    if (!estado.limites) {
+      if (capaLimites && mapa.hasLayer(capaLimites)) mapa.removeLayer(capaLimites);
+      return;
+    }
+    if (referenciaEstados) {
+      if (!capaLimites) capaLimites = new CapaEstados(referenciaEstados);
+      if (!mapa.hasLayer(capaLimites)) capaLimites.addTo(mapa);
+      return;
+    }
+    if (pedidoLimites) return;
+    sitio('mostrarLimites').setAttribute('aria-busy', 'true');
+    pedidoLimites = leerJson('mapa-base/mexico.json', 15000).then(prepararReferencia);
+    try { referenciaEstados = await pedidoLimites; }
+    catch (e) { sitio('errorLimites').hidden = !estado.limites; }
+    finally {
+      pedidoLimites = null;
+      sitio('mostrarLimites').setAttribute('aria-busy', 'false');
+    }
+    if (referenciaEstados) mostrarReferencia();
+  }
 
   const pausa = () => new Promise(resolve => setTimeout(resolve, 0));
 
@@ -1358,6 +1554,17 @@
     selEstado.value = estado.entidad;
     selEstado.addEventListener('change', () => cargarEstado(Number(selEstado.value), true));
     sitio('reintentarProyectos').addEventListener('click', () => cargarEstado(estado.entidad, false));
+    sitio('resumenesEstatus').checked = estado.agrupado;
+    sitio('resumenesEstatus').addEventListener('change', ev => {
+      estado.agrupado = ev.target.checked;
+      mapa.closePopup(); ajustarRadio(); setUrl();
+    });
+    sitio('mostrarLimites').checked = estado.limites;
+    sitio('mostrarLimites').addEventListener('change', ev => {
+      estado.limites = ev.target.checked;
+      mostrarReferencia(); setUrl();
+    });
+    sitio('reintentarLimites').addEventListener('click', mostrarReferencia);
 
     sitio('verFiltrados').addEventListener('click', verFiltrados);
     sitio('restablecerFiltros').addEventListener('click', () => {
@@ -1428,6 +1635,7 @@
       pintarMunicipios();
       if (resaltado) resaltado.setStyle({ color: S.color('--marca') });
       if (capaPuntos) { capaPuntos.redibujar(); pintarFiltros(); }
+      if (capaLimites) capaLimites.redibujar();
       if (abierto && abierto.p) {
         sitio('detalle').querySelectorAll('.chip i').forEach(i => { i.style.background = colorEstatus(abierto.p.g); });
       }
@@ -1477,6 +1685,9 @@
     vistaInicial();
     L.control.zoom({ position: 'topright' }).addTo(mapa);
     mapa.createPane('obras').style.zIndex = 450;
+    const paneEstados = mapa.createPane('referencia-estados');
+    paneEstados.style.zIndex = 460;
+    paneEstados.style.pointerEvents = 'none';
     mapa.on('moveend', setUrl);
     mapa.on('zoomend', () => ajustarRadio());
     /* Al acercarse, se cargan los proyectos del estado que está a la vista. */
@@ -1506,6 +1717,7 @@
 
     if (estado.entidad && !datos.estados.has(estado.entidad)) estado.entidad = 0;
     controles();
+    mostrarReferencia();
     pintarMunicipios();
     const cargaInicial = estado.vista === 'proyectos' ? cargarEstado(estado.entidad, !q.get('c')) : Promise.resolve();
     /* ?folio= abre la ficha de un proyecto del estado cargado, para compartirlo; ?comparar=1 abre

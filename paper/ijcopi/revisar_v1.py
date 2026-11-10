@@ -20,6 +20,7 @@ from docx.oxml import OxmlElement
 from docx.oxml.ns import qn
 from docx.opc.constants import RELATIONSHIP_TYPE as RT
 from docx.shared import Inches, Pt
+from docx.text.paragraph import Paragraph
 from PIL import Image
 
 
@@ -47,10 +48,9 @@ FUTURE = (
 )
 
 SOURCES = (
-    "Figure 4 traces nine official files: federal spending, 2020–2025 (SHCP, n.d.); "
-    "Census 2020 localities (INEGI, n.d.-a); CNGMD 2023 procurement (INEGI, n.d.-b); "
-    "and municipal deprivation (CONEVAL, n.d.). Ingestion checks manifest file sizes "
-    "and SHA-256 hashes (2,136.3 MB in total), stopping on mismatches."
+    "Figure 4 traces nine official files (SHCP, n.d.; INEGI, n.d.-a, n.d.-b; CONEVAL, "
+    "n.d.). Ingestion stops if any file differs from its manifest size or SHA-256 "
+    "(2,136.3 MB total)."
 )
 
 LAYERS = (
@@ -64,25 +64,26 @@ LAYERS = (
 
 SITE = (
     "The static map and queries (Fig. 5; Hurtado Avilés, 2026) publish six SQL-result "
-    "layers, separate from the conference demonstration. Points are partitioned by state; "
-    "details by municipality. All Mexico combines 32 point files, retaining filters "
-    "across country/state views. Grouped overviews retain every record and preserve "
-    "status shares. Verification reruns queries and fails on byte discrepancies. "
-    "Municipalities and projects identify source files and SHA-256. Of 253,346 "
-    "georeferenced records in 2024, 158,919 carry agency-reported links (37,682 include "
-    "PDF; 45 an image), preserved in an annex. Status, flags and evidence can be filtered; "
-    "search includes OpenStreetMap geocoding. Esri comparisons use the last pre-project "
-    "release and the latest. State display uses nearest municipal seats rather than "
-    "polygons and reports omissions. A national outline works offline."
+    "layers separately from the conference demonstration. All Mexico combines 32 state "
+    "point files; details load by municipality, retaining filters across views. Queries "
+    "rerun for byte verification. Records identify source files and SHA-256. Of 253,346 "
+    "georeferenced projects in 2024, 158,919 provide agency-reported links (37,682 PDF; "
+    "45 images) in an annex. Filters cover status, flags and evidence; search uses "
+    "OpenStreetMap geocoding. Esri comparisons show the last pre-project release and "
+    "the latest. State outlines orient readers, but state filters still use nearest "
+    "municipal seats and report omissions. A national outline works offline."
 )
 
 CAPTION = (
-    "Fig. 4. Official data provenance and warehouse integration. SHCP: Ministry of "
-    "Finance and Public Credit; INEGI: National Institute of Statistics and Geography; "
-    "CNGMD: National Census of Municipal Governments and Territorial Demarcations of "
-    "Mexico City (2023 edition; 2022 data); CONEVAL: National "
-    "Council for the Evaluation of Social Development Policy. SHA-256: Secure Hash "
-    "Algorithm with a 256-bit digest; MB: megabytes (one million bytes); IDs: identifiers."
+    "Fig. 4. Official data provenance. Secretaría de Hacienda y Crédito Público "
+    "(SHCP; Ministry of Finance and Public Credit); Instituto Nacional de Estadística "
+    "y Geografía (INEGI; National Institute of Statistics and Geography); Censo Nacional "
+    "de Gobiernos Municipales y Demarcaciones Territoriales de la Ciudad de México "
+    "(CNGMD; National Census of Municipal Governments and Territorial Demarcations "
+    "of Mexico City); Consejo Nacional de "
+    "Evaluación de la Política de Desarrollo Social (CONEVAL; National Council "
+    "for the Evaluation of Social Development Policy). SHA-256: 256-bit Secure Hash "
+    "Algorithm; MB: megabytes (10⁶ bytes); IDs: identifiers."
 )
 
 
@@ -119,6 +120,18 @@ def main():
         check=True, capture_output=True,
     ).stdout
     doc = Document(BytesIO(source))
+    introduction = find(doc, "This extended version keeps that design")
+    old_agency = (
+        "the Ministry of Finance for 2020 to 2025 "
+        "(Secretaría de Hacienda y Crédito Público [SHCP], n.d.)"
+    )
+    new_agency = (
+        "the Secretaría de Hacienda y Crédito Público "
+        "(SHCP; Ministry of Finance and Public Credit) for 2020 to 2025 (SHCP, n.d.)"
+    )
+    agency_nodes = [n for n in introduction._p.iter(qn("w:t")) if old_agency in (n.text or "")]
+    assert len(agency_nodes) == 1
+    agency_nodes[0].text = agency_nodes[0].text.replace(old_agency, new_agency)
     equations = len(doc.element.xpath(".//m:oMath"))
     assert equations == 7, equations
     assert FIGURE.is_file(), FIGURE
@@ -169,6 +182,26 @@ def main():
     availability.add_run(
         " The reported measurements correspond to code commit 661e7da."
     ).font.highlight_color = WD_COLOR_INDEX.YELLOW
+    # Retain the complete AI disclosure while removing repetition in the extension.
+    disclosure = find(doc, "Declaration on the Use of Generative AI:")
+    extension = disclosure.text.index("For this extended version")
+    remaining = extension
+    for run in list(disclosure.runs):
+        if not remaining:
+            disclosure._p.remove(run._r)
+        elif len(run.text) <= remaining:
+            remaining -= len(run.text)
+        else:
+            run.text = run.text[:remaining]
+            remaining = 0
+    disclosure_run = disclosure.add_run(
+        "For this extension, Claude (Anthropic) and Gemini (Google) assisted with ETL, "
+        "projections, verification, tracing results to scripts and drafting sections. "
+        "Codex (OpenAI) assisted with language, consistency, website usability and "
+        "manuscript revisions. The authors retain responsibility for final approval."
+    )
+    disclosure_run.bold = False
+    disclosure_run.font.highlight_color = WD_COLOR_INDEX.YELLOW
 
     # Renumber existing figures 4 and 5 before adding the new provenance figure.
     for paragraph in doc.paragraphs:
@@ -209,10 +242,10 @@ def main():
         "approximation. Both panels use the same four project-status colours."
     ))
     replace_text(map_caption, (
-        "Fig. 5. Projects in 2024. (A) All 253,346 records grouped by location: sectors "
-        "show status shares; size is logarithmic. (B) 20,552 of 21,335 State of Mexico "
-        "records as individual points (783 omitted by nearest-seat approximation). "
-        "Basemap: Esri (n.d.)."
+        "Fig. 5. Projects in 2024. (A) All 253,346 georeferenced records with generalised "
+        "state boundaries and labels (Natural Earth, n.d.). (B) 20,552 of 21,335 State "
+        "of Mexico records (783 omitted by nearest-seat approximation). Colours show "
+        "status; coincident points can overlap. Basemap: Esri (n.d.)."
     ))
 
     sources = find(doc, "The layer starts from nine files")
@@ -236,7 +269,7 @@ def main():
             margins = cell._tc.get_or_add_tcPr().find(qn("w:tcMar"))
             assert margins is not None
             for edge in ("top", "bottom"):
-                margins.find(qn("w:" + edge)).set(qn("w:w"), "40")
+                margins.find(qn("w:" + edge)).set(qn("w:w"), "20")
             for paragraph in cell.paragraphs:
                 paragraph.paragraph_format.space_after = Pt(1)
 
@@ -273,6 +306,35 @@ def main():
 
     future = find(doc, "The extension implements the conference lakehouse")
     future.add_run(" " + FUTURE).font.highlight_color = WD_COLOR_INDEX.YELLOW
+
+    # The state outline is illustrative context, distinct from official project data.
+    reference_anchor = find(doc, "Lu, C. (2025).")
+    reference_xml = deepcopy(reference_anchor._p)
+    for child in list(reference_xml):
+        if child.tag != qn("w:pPr"):
+            reference_xml.remove(child)
+    dataset_reference = Paragraph(reference_xml, doc._body)
+    for value, italic in [
+        ("Natural Earth. (n.d.). ", False),
+        ("Admin 1—states, provinces", True),
+        (" [Data set]. ", False),
+    ]:
+        run = dataset_reference.add_run(value)
+        run.italic = italic
+        run.font.highlight_color = WD_COLOR_INDEX.YELLOW
+    url = "https://www.naturalearthdata.com/downloads/10m-cultural-vectors/10m-admin-1-states-provinces/"
+    hyperlink = OxmlElement("w:hyperlink")
+    hyperlink.set(qn("r:id"), doc.part.relate_to(url, RT.HYPERLINK, is_external=True))
+    link_run = dataset_reference.add_run(url)
+    link_run.font.highlight_color = WD_COLOR_INDEX.YELLOW
+    link_run._r.get_or_add_rPr().append(OxmlElement("w:u"))
+    link_run._r.rPr.find(qn("w:u")).set(qn("w:val"), "single")
+    colour = OxmlElement("w:color")
+    colour.set(qn("w:val"), "0563C1")
+    link_run._r.rPr.append(colour)
+    hyperlink.append(link_run._r)
+    reference_xml.append(hyperlink)
+    reference_anchor._p.addnext(reference_xml)
     assert len(doc.element.xpath(".//m:oMath")) == equations
     assert len(doc.inline_shapes) == 7
     assert frozen.read_bytes() == frozen_bytes

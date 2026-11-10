@@ -56,6 +56,7 @@ try {
       return document.getElementById('estadoObras')?.getAttribute('aria-busy') === 'false'
         && !document.getElementById('filtros')?.hidden && numbers[1] === total;
     }, view.total, { timeout: 90000 });
+    await page.waitForFunction(() => document.querySelector('canvas.estados-canvas')?.dataset.estados === '32', null, { timeout: 20000 });
     // A transient tile error can leave the application's offline outline below
     // one tile. Retry the actual basemap selector until this capture is complete.
     let complete = false;
@@ -64,8 +65,7 @@ try {
         await page.waitForFunction(() => {
           const tiles = [...document.querySelectorAll('.leaflet-tile')].filter(img => img.tagName === 'IMG');
           return window.MapaTeselas?.actual() === 'esri-gris' && tiles.length > 0
-            && tiles.every(img => img.complete && img.naturalWidth > 0)
-            && !document.querySelector('.leaflet-control-attribution')?.textContent.includes('Natural Earth');
+            && tiles.every(img => img.complete && img.naturalWidth > 0);
         }, null, { timeout: 15000 });
         complete = true; break;
       } catch {
@@ -87,6 +87,9 @@ try {
         loadedTiles: document.querySelectorAll('.leaflet-tile-loaded').length,
         canvases: document.querySelectorAll('#mapa canvas').length,
         renderingMode: document.querySelector('canvas.proyectos-canvas')?.dataset.modo || '',
+        pointRadius: Number(document.querySelector('canvas.proyectos-canvas')?.dataset.radio),
+        stateBoundaries: Number(document.querySelector('canvas.estados-canvas')?.dataset.estados),
+        stateLabels: JSON.parse(document.querySelector('canvas.estados-canvas')?.dataset.etiquetas || '[]'),
         statusTotals: JSON.parse(document.querySelector('canvas.proyectos-canvas')?.dataset.estatus || '[]'),
         groupedCells: JSON.parse(document.querySelector('canvas.proyectos-canvas')?.dataset.grupos || '[]').length,
         aggregationNote: document.getElementById('leyenda')?.textContent || '',
@@ -95,6 +98,7 @@ try {
     });
     if (record.language !== 'en' || record.total !== view.total || !record.canvases) throw new Error(JSON.stringify(record));
     if (view.state === 0 && record.visible !== 253346) throw new Error('Incomplete national view');
+    if (record.renderingMode !== 'individual' || record.stateBoundaries !== 32) throw new Error('Incorrect publication rendering');
     const png = resolve(output, view.id + '.png');
     await page.locator('#mapa').screenshot({ path: png, animations: 'disabled' });
     results.push({ view: view.id, ...record, image: view.id + '.png' });

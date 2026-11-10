@@ -1,0 +1,91 @@
+{
+  "fecha_cliente": "2026-11-09",
+  "publicacion_autorizada_por_usuario": true,
+  "revision_anterior": "4867c2a7b571fe54d68a898001a879e14f181666",
+  "manuscrito": {
+    "archivo": "paper/ijcopi/Paper37_IJCOPI_v1_extendida.docx",
+    "sha256": "8a80eacb3b7051aa7b99b73272a7763c7a18da5a3b851354ee0adcb73a800e79",
+    "paginas_microsoft_word": 15,
+    "palabras_microsoft_word": 9597,
+    "palabras_base": 6844,
+    "ampliacion_porcentaje": 40.23,
+    "paginas_renderizadas_inspeccionadas": 15,
+    "renderizador": "Microsoft Word ExportAsFixedFormat; PyMuPDF para PNG",
+    "ecuaciones_nativas_identicas": 7,
+    "valores_de_todas_las_tablas_conservados": true,
+    "primeras_cuatro_tablas_xml_identico": true,
+    "tabla_3_formato": "Margenes verticales de celdas 20 twips y espacio posterior 1 pt; fuente conservada",
+    "palabras_nuevas_sin_amarillo": 0,
+    "figura_4": "Alternativa C, identica al PNG canonico",
+    "orden_instituciones": "Nombre original en espanol, sigla y traduccion al ingles; SHCP, INEGI, CNGMD y CONEVAL",
+    "referencia_natural_earth_agregada": true,
+    "repositorio_en_referencia": "https://github.com/gabrielhuav/PublicMunicipalWorks_IJCOPI",
+    "version_medida_en_disponibilidad": "661e7da",
+    "v0_conservada": true
+  },
+  "vista_nacional": {
+    "ejercicio": 2024,
+    "proyectos_georreferenciados": 253346,
+    "conteos_estatus": [
+      145246,
+      94955,
+      11793,
+      1352
+    ],
+    "orden_estatus": [
+      "Completed",
+      "In progress",
+      "Cancelled",
+      "Other status"
+    ],
+    "predeterminado": "Puntos individuales en cualquier zoom; radio nacional de 1 px en zoom 5",
+    "orden_dibujo": "Determinista por folio, independiente del estatus",
+    "referencia_estatal": "Limites generalizados y nombres de Natural Earth 5.1.2, por encima de los proyectos",
+    "archivo_referencia": "lakehouse/sitio/mapa-base/mexico.json",
+    "nombres_visibles_captura_nacional": 32,
+    "anclas_rotulos": "Baja California, Baja California Sur y Sonora se ajustan al interior para legibilidad; no cambian coordenadas de proyectos ni filtros",
+    "referencia_desactivable": "?limites=0",
+    "resumenes_opcionales": "?agrupado=1; celdas Mercator de 32 px hasta zoom 7, proporciones exactas por estatus; desde zoom 8 siempre puntos",
+    "aproximacion_filtro_estatal_conservada": "Cabecera municipal mas cercana",
+    "estado_mexico": {
+      "registros": 21335,
+      "visibles": 20552,
+      "omitidos": 783
+    },
+    "datos_exportados_modificados": false,
+    "prueba": "scripts/pruebas/vista_nacional.cjs",
+    "resultado_prueba_edge": "aprobada",
+    "casos": [
+      "32 nombres y limites por encima de puntos",
+      "puntos individuales por defecto",
+      "nombres locales sin duplicados y recuperacion al ocultar referencia",
+      "cambios de tema y tamano",
+      "resumenes opcionales y conservacion de estatus",
+      "filtros",
+      "cambios de vista",
+      "cache",
+      "busqueda",
+      "clic",
+      "carreras",
+      "fallos de particion e indice y reintentos",
+      "fallo de referencia independiente y reintento"
+    ],
+    "errores_javascript": 0,
+    "evidencia_capturas": "paper/ijcopi/capturas_figura5/evidencia.json"
+  },
+  "capitulo_springer": {
+    "enlaces_comprobados": 21,
+    "tags_comprobados": 2,
+    "tags_conservados": {
+      "v1.2.0-icokg2026": "515a1c6",
+      "v1.7.3-icokg2026": "8feb73c"
+    },
+    "fallos_disponibilidad_http": 1,
+    "doi": "10.24275/AZC2026E1004",
+    "incidencia": "El portal editorial agota el tiempo de espera desde esta red",
+    "api_handle_response_code": 1,
+    "url_registrada": "https://azcatl.azc.uam.mx/index.php/azcatl/article/view/75",
+    "enlace_congelado_modificado": false,
+    "limite": "Registro valido del DOI no acredita disponibilidad actual del portal"
+  }
+}

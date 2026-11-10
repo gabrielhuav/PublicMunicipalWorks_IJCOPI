@@ -49,6 +49,33 @@ const server = http.createServer((req,res)=>{
 const errors=[];
 let browser;
 const waitCount = (page,n)=>page.waitForFunction(n=>document.querySelector('canvas.proyectos-canvas')?.dataset.proyectos===String(n),n,{timeout:45000});
+async function checkIndividuals(page, total, statuses) {
+  const metadata = await page.locator('canvas.proyectos-canvas').evaluate(canvas => ({
+    mode: canvas.dataset.modo, total: Number(canvas.dataset.proyectos), radius: Number(canvas.dataset.radio),
+    zoom: Number(canvas.dataset.zoom), statuses: JSON.parse(canvas.dataset.estatus), groups: JSON.parse(canvas.dataset.grupos),
+  }));
+  assert.equal(metadata.mode, 'individual');
+  assert.equal(metadata.total, total);
+  assert.deepEqual(metadata.statuses, statuses);
+  assert.deepEqual(metadata.groups, []);
+  if (metadata.zoom <= 5) assert.equal(metadata.radius, 1);
+}
+async function checkReference(page) {
+  await page.waitForFunction(() => document.querySelector('canvas.estados-canvas')?.dataset.estados === '32');
+  const metadata = await page.locator('canvas.estados-canvas').evaluate(canvas => ({
+    states: Number(canvas.dataset.estados), lines: Number(canvas.dataset.lineas),
+    names: JSON.parse(canvas.dataset.nombres), labels: JSON.parse(canvas.dataset.etiquetas),
+    z: Number(canvas.parentElement.style.zIndex), pointsZ: Number(document.querySelector('canvas.proyectos-canvas').parentElement.style.zIndex),
+  }));
+  assert.equal(metadata.states, 32);
+  assert.equal(new Set(metadata.names).size, 32);
+  assert.ok(metadata.names.includes('State of Mexico'));
+  assert.ok(metadata.names.includes('Mexico City'));
+  assert.ok(metadata.names.includes('San Luis Potosí'));
+  assert.equal(metadata.lines, 690);
+  assert.ok(metadata.z > metadata.pointsZ, 'Reference must be painted above project points');
+  assert.equal(metadata.labels.length, 32, 'Every state has a visible national label');
+}
 async function checkAggregation(page, total, statuses) {
   const metadata = await page.locator('canvas.proyectos-canvas').evaluate(canvas => ({
     mode: canvas.dataset.modo, cell: Number(canvas.dataset.celda),
@@ -85,7 +112,22 @@ async function clickVisibleGroup(page) {
   await page.waitForFunction(zoom => Number(document.querySelector('canvas.proyectos-canvas')?.dataset.zoom) === zoom + 2, selected.zoom);
   await page.locator('.leaflet-popup-close-button').click();
 }
-async function newPage(){const page=await browser.newPage({viewport:{width:1500,height:938}});page.on('pageerror',e=>errors.push(e.message));await page.route(/^https?:\/\/(?!127\.0\.0\.1:)/,r=>r.abort());return page;}
+async function newPage(){const page=await browser.newPage({viewport:{width:1500,height:938}});page.on('pageerror',e=>errors.push(e.message));await page.route(/^https?:\/\/(?!127\.0\.0\.1:)/,r=>r.abort());
+  // Inspect text actually painted on current local tiles, including after redraw.
+  await page.addInitScript(() => {
+    const proto = CanvasRenderingContext2D.prototype, clear = proto.clearRect, fill = proto.fillText;
+    proto.clearRect = function (...args) { this.canvas.__paintedLabels = []; return clear.apply(this, args); };
+    proto.fillText = function (...args) { (this.canvas.__paintedLabels ||= []).push(String(args[0])); return fill.apply(this, args); };
+  });
+  return page;
+}
+async function checkLocalLabels(page, visible) {
+  await page.waitForFunction(visible => {
+    const tiles = [...document.querySelectorAll('canvas.leaflet-tile-loaded')];
+    const labels = tiles.flatMap(canvas => canvas.__paintedLabels || []);
+    return tiles.length > 0 && (visible ? labels.includes('Ciudad de México') : labels.length === 0);
+  }, visible);
+}
 const url = (port,q='estado=0&capa=proyectos')=>`http://127.0.0.1:${port}/?lang=en&modo=claro&teselas=local&${q}`;
 (async()=>{
   await new Promise(r=>server.listen(0,'127.0.0.1',r));const port=server.address().port;
@@ -98,6 +140,31 @@ const url = (port,q='estado=0&capa=proyectos')=>`http://127.0.0.1:${port}/?lang=
   assert.equal(await page.locator('#estadoObras option').first().textContent(),'All Mexico');
   assert.equal(await page.locator('#filtroUbicacion').isHidden(),true);
   assert.match(await page.locator('#filtroConteo').textContent(),/253,346 of 253,346/);
+  await checkIndividuals(page, expected.total, expectedStatuses);
+  await checkReference(page);
+  await checkLocalLabels(page, false);
+  assert.match(await page.locator('#leyenda').textContent(), /Individual projects/);
+  assert.equal(await page.locator('#resumenesEstatus').isChecked(), false);
+  assert.equal(await page.locator('#mostrarLimites').isChecked(), true);
+  await page.locator('#mostrarLimites').uncheck();
+  await page.waitForFunction(() => !document.querySelector('canvas.estados-canvas'));
+  assert.equal(new URL(page.url()).searchParams.get('limites'), '0');
+  await checkLocalLabels(page, true);
+  await checkIndividuals(page, expected.total, expectedStatuses);
+  await page.locator('#mostrarLimites').check();await checkReference(page);
+  await checkLocalLabels(page, false);
+  assert.equal(new URL(page.url()).searchParams.has('limites'), false);
+  await page.setViewportSize({width:1600,height:980});
+  await page.waitForFunction(() => document.querySelector('canvas.estados-canvas')?.style.width === '1600px');
+  await page.locator('#modo').click();
+  await checkIndividuals(page, expected.total, expectedStatuses);
+  assert.equal(await page.locator('canvas.estados-canvas').count(), 1);
+  await page.locator('#modo').click();
+  await page.setViewportSize({width:1500,height:938});
+  console.log('PASS default individual points, 32 state reference labels, layer order, toggle, resize and theme');
+  await page.locator('#resumenesEstatus').check();
+  await page.waitForFunction(() => document.querySelector('canvas.proyectos-canvas')?.dataset.modo === 'agrupado');
+  assert.equal(new URL(page.url()).searchParams.get('agrupado'), '1');
   await checkAggregation(page, expected.total, expectedStatuses);
   assert.match(await page.locator('#leyenda').textContent(), /logarithmic count scale/);
   const boundaryGroups = await page.evaluate(() => ProyectosMapa.agrupar([
@@ -129,6 +196,8 @@ const url = (port,q='estado=0&capa=proyectos')=>`http://127.0.0.1:${port}/?lang=
   assert.deepEqual(JSON.parse(await page.locator('canvas.proyectos-canvas').getAttribute('data-estatus')), expectedStatuses);
   assert.equal(new URL(page.url()).searchParams.get('estado'), '0');
   console.log('PASS all-record aggregation, four-status conservation, cell boundaries and group drilldown');
+  await page.locator('#resumenesEstatus').uncheck();
+  assert.equal(new URL(page.url()).searchParams.has('agrupado'), false);
   await page.locator('#vistaMunicipios').click();assert.equal(await page.locator('canvas.proyectos-canvas').count(),0);
   await page.locator('#vistaProyectos').click();await waitCount(page,expected.total);
   assert.equal(requests.size,32);assert.ok([...requests.values()].every(n=>n===1),'Cache should reuse each partition');
@@ -137,6 +206,7 @@ const url = (port,q='estado=0&capa=proyectos')=>`http://127.0.0.1:${port}/?lang=
   const zoom=Number(new URL(page.url()).searchParams.get('c').split(',')[2]);assert.ok(zoom>=9);
   await page.locator('#vistaNacional').click();await waitCount(page,expected.total);
   assert.equal(new URL(page.url()).searchParams.get('estado'),'0');
+  await checkIndividuals(page, expected.total, expectedStatuses);
   await page.locator('#buscar').fill('MEX17170401001337');await page.locator('#sugerencias button').first().click();
   await page.locator('#detalle h2').waitFor();assert.equal(new URL(page.url()).searchParams.get('estado'),'0');
   await page.locator('#cerrarDetalle').click();
@@ -167,5 +237,26 @@ const url = (port,q='estado=0&capa=proyectos')=>`http://127.0.0.1:${port}/?lang=
   await badIndex.locator('#reintentarProyectos').click();await waitCount(badIndex,expected.total);assert.equal(indexFails,2);
   assert.equal(new URL(badIndex.url()).searchParams.get('estado'),'0');
   await badIndex.close();console.log('PASS index retry and todos alias');
+
+  const noReference=await newPage();
+  await noReference.goto(url(port,'estado=0&capa=proyectos&limites=0&agrupado=1'));
+  await waitCount(noReference,expected.total);
+  assert.equal(await noReference.locator('canvas.estados-canvas').count(),0);
+  assert.equal(await noReference.locator('#mostrarLimites').isChecked(),false);
+  assert.equal(await noReference.locator('#resumenesEstatus').isChecked(),true);
+  await checkAggregation(noReference, expected.total, expectedStatuses);
+  await noReference.close();console.log('PASS shared reference and summary URL options');
+
+  const boundaryFailure=await newPage();let referenceFails=0;
+  await boundaryFailure.route('**/mapa-base/mexico.json',r=>{referenceFails++;return r.fulfill({status:503,body:'unavailable'});});
+  await boundaryFailure.goto(url(port));await waitCount(boundaryFailure,expected.total);
+  await boundaryFailure.locator('#errorLimites').waitFor({state:'visible'});
+  await checkIndividuals(boundaryFailure,expected.total,expectedStatuses);
+  assert.equal(await boundaryFailure.locator('canvas.estados-canvas').count(),0);
+  await boundaryFailure.unroute('**/mapa-base/mexico.json');
+  await boundaryFailure.locator('#reintentarLimites').click();await checkReference(boundaryFailure);
+  assert.equal(await boundaryFailure.locator('#errorLimites').isHidden(),true);
+  assert.ok(referenceFails>=1);
+  await boundaryFailure.close();console.log('PASS reference failure does not block projects and retry recovers');
   assert.deepEqual(errors,[]);console.log('PASS no browser script errors');
 })().catch(e=>{console.error(e);process.exitCode=1;}).finally(async()=>{if(browser)await browser.close();server.close();});

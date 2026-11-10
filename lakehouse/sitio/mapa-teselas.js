@@ -482,6 +482,7 @@
 
   var base = null, baseCargando = null, baseDesde = 0, baseFallo = 0, conMinima = false;
   var etiquetasPorZoom = {};
+  var mostrarRotulosEstados = true;
   var POLIGONOS = { agua: true, parque: true };
 
   function proyectar(lon, lat) {
@@ -646,7 +647,7 @@
     var ctx = document.createElement('canvas').getContext('2d');
     var puestas = [];
     b.lugares.forEach(function (l) {
-      if (l.c > maxClase) return;
+      if (l.c > maxClase || (l.c === 0 && !mostrarRotulosEstados)) return;
       ctx.font = fuente(l.c, z);
       var an = ctx.measureText(l.n).width, al = l.c === 0 ? 14 : 11;
       var x = l.x * k, y = l.y * k;
@@ -991,6 +992,15 @@
     proveedores: PROVEEDORES.map(function (p) { return p.id; }),
     actual: function () { return estado.actual && estado.actual.id; },
     disponibilidad: function () { return JSON.parse(JSON.stringify(estado.disponibilidad)); },
+    // La referencia superior sustituye los rótulos estatales de la copia local.
+    // Si se oculta o falla, los nombres locales vuelven a estar disponibles.
+    rotulosEstados: function (mostrar) {
+      if (mostrar === undefined) return mostrarRotulosEstados;
+      if (mostrarRotulosEstados === !!mostrar) return;
+      mostrarRotulosEstados = !!mostrar;
+      etiquetasPorZoom = {};
+      if (estado.local && estado.mapa && estado.mapa.hasLayer(estado.local)) estado.local.redraw();
+    },
     usar: function (id) { var p = porId(id); if (p) activar(p, 'manual'); return !!p; }
   };
 })();

@@ -6,7 +6,7 @@
     <title>Obra pública federalizada</title>
     <meta name="description" content="Mapa del lago de datos de obra pública federalizada en México, 2020-2025, con datos oficiales de SHCP, INEGI y CONEVAL. Cada capa es el resultado de una consulta a la base de datos.">
     <link rel="stylesheet" href="vendor/leaflet-1.9.4.css">
-    <link rel="stylesheet" href="sitio.css?v=20261109-agrupado">
+    <link rel="stylesheet" href="sitio.css?v=20261109-estados">
     <script src="comun.js?v=20261109-final"></script>
 </head>
 <body class="app">
@@ -65,6 +65,8 @@
             <select id="estadoObras"></select>
             <p id="estadoObrasNota" class="nota" data-t="c.estado.nota"></p>
             <p class="nota" data-t="c.proyectos.nota"></p>
+            <label class="opcion-mapa"><input type="checkbox" id="resumenesEstatus"><span data-t="agg.control"></span></label>
+            <p class="nota" data-t="agg.control.nota"></p>
             <div id="estadoCargaProyectos" class="carga-proyectos" hidden>
                 <p id="textoCargaProyectos" role="status" aria-live="polite"></p>
                 <progress id="progresoProyectos" value="0" max="1" data-t-aria="s.proyectos"></progress>
@@ -103,6 +105,12 @@
             <p id="notaIndicador" class="nota"></p>
         </section>
 
+        <section class="seccion" id="referenciaGeografica">
+            <h2 data-t="lim.titulo"></h2>
+            <label class="opcion-mapa"><input type="checkbox" id="mostrarLimites" checked><span data-t="lim.control"></span></label>
+            <p class="nota" data-t="lim.nota"></p>
+        </section>
+
         <section class="seccion" id="seccionLeyenda">
             <h2 id="leyendaTitulo"></h2>
             <div id="leyenda"></div>
@@ -128,6 +136,10 @@
     </aside>
 
     <p id="cargando" class="cargando" role="status" hidden></p>
+    <div id="errorLimites" class="error-limites" role="status" hidden>
+        <span data-t="lim.error"></span>
+        <button type="button" id="reintentarLimites" class="enlace-boton" data-t="lim.reintentar"></button>
+    </div>
 </main>
 
 <div id="comparar" class="comparar" hidden role="dialog" aria-modal="true" aria-labelledby="compararTitulo">
@@ -151,7 +163,7 @@
 </div>
 
 <script src="vendor/leaflet-1.9.4.js"></script>
-<script src="mapa-teselas.js"></script>
-<script src="mapa.js?v=20261109-agrupado"></script>
+<script src="mapa-teselas.js?v=20261109-estados"></script>
+<script src="mapa.js?v=20261109-estados"></script>
 </body>
 </html>
