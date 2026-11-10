@@ -1,0 +1,68 @@
+{
+ "generado_en": "2026-11-09T18:27:05.495388+00:00",
+ "metodo": "SQL reales de oro/50 y capas/04 sobre conversiones de plata.py y tres ZIP con SHA-256 verificado; sin servicios",
+ "alcance": "Solo capa 04; no se midieron ni actualizaron S3, PostgreSQL, Iceberg ni latencias históricas",
+ "fuentes": {
+  "shcp_ef2022": {
+   "sha256": "812ce8960096c8c80e4a8b496e0bfd84779f28bb6dddda909318c195f7b54b56",
+   "bytes": 103837470
+  },
+  "inegi_iter2020": {
+   "sha256": "9342fdbd45bda5897f2b827a12904843b6f8fb85d4e72da299e09e4d2422ab60",
+   "bytes": 36615814
+  },
+  "inegi_cngmd2023": {
+   "sha256": "75ebca7c91196ef440749e072dd7a4a6b4b00cbbc1265d3d268870c845d333e7",
+   "bytes": 3746888
+  }
+ },
+ "antes_de_deduplicar": {
+  "filas": 100642,
+  "sin_id": 0,
+  "suma_filas": "2312738985704.28"
+ },
+ "contratos_por_municipio": {
+  "contratos": 79438,
+  "suma_maximos": "2256773237659.36",
+  "repetidos_multifolio": 5333,
+  "con_montos_distintos": 2
+ },
+ "regla_monto": "Máximo monto informado por cvemun e identificador antes de sumar; no equivale a gasto pagado ni identifica el último valor",
+ "capa": {
+  "filas": 2469,
+  "columnas": [
+   "cvemun",
+   "contratos_cngmd",
+   "monto_cngmd",
+   "contratos_shcp",
+   "monto_shcp",
+   "relacion"
+  ],
+  "sha256_sql_oro": "5e396d9d0e3c4292dd11441efd25a45f8bae78b2a8711e04dbc167b55412a654",
+  "sha256_sql_capa": "a572ad73479910e3fb86e768e129e32edbca505eaa9ae10959d16f6d36d3d8ff",
+  "sha256_datos": "4c120ca89f89918446e59c1eb37082f9c86041a9a7ef1032b3e6ef161f3e5e81",
+  "actualizado_en": "2026-11-09 18:27 UTC"
+ },
+ "temascaltepec": {
+  "cvemun": "15086",
+  "entidad": "México",
+  "municipio": "Temascaltepec",
+  "pobtot": 35014,
+  "contratos_cngmd": 0,
+  "monto_cngmd": null,
+  "contratos_shcp": 16,
+  "monto_shcp": "19364849.77",
+  "relacion": "CNGMD en cero, SHCP con contratos"
+ },
+ "sql_fixture_passed": true,
+ "oc4ids_package": {
+  "uri": "https://github.com/gabrielhuav/PublicMunicipalWorks_IJCOPI",
+  "fixture_schema_errors": 0,
+  "full_export_rerun": false
+ },
+ "actualizacion": {
+  "sha256_anterior": "c7af95e4711f66db69dcdb2b0047fd5ec2ce9f4d47b5a93e0cec2f1a09b1c947",
+  "municipios_con_monto_corregido": 924,
+  "otras_columnas_identicas": true
+ }
+}

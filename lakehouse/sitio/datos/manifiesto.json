@@ -1,0 +1,152 @@
+{
+ "generado_en": "2026-11-02 12:38 UTC",
+ "consultas": [
+  {
+   "consulta": "01_resumen.pg.sql",
+   "motor": "pg",
+   "filas": 6,
+   "columnas": [
+    "ciclo",
+    "entidades",
+    "municipios",
+    "proyectos",
+    "aprobado",
+    "pagado",
+    "fais",
+    "evaluados",
+    "c1",
+    "c2",
+    "c3",
+    "c4"
+   ],
+   "sha256_consulta": "6587590834728e4175cd9001a2b5f636a1a6ea89d0556be56912593642944148",
+   "sha256_datos": "d0cdd2d786fcc275533f0cc8c85fc8b0c08c6cc1b0c75c51dc942c87a2682e5c",
+   "sql": "-- Resumen por ciclo de lo cargado en el almacén: entidades, municipios, proyectos, montos y\n-- cuántos proyectos marca cada criterio. Los criterios solo se calculan para proyectos de\n-- inversión; marcan qué revisar y no prueban una irregularidad.\nSELECT f.ciclo,\n       count(DISTINCT f.id_entidad) AS entidades,\n       count(DISTINCT f.municipio_key) AS municipios,\n       count(*) AS proyectos,\n       sum(f.aprobado) AS aprobado,\n       sum(f.pagado) AS pagado,\n       count(*) FILTER (WHERE f.es_fais) AS fais,\n       count(*) FILTER (WHERE f.c1_tipo IS NOT NULL) AS evaluados,\n       count(*) FILTER (WHERE f.c1_tipo) AS c1,\n       count(*) FILTER (WHERE f.c2) AS c2,\n       count(*) FILTER (WHERE f.c3) AS c3,\n       count(*) FILTER (WHERE f.c4) AS c4\nFROM warehouse.fact_proyecto_ciclo f\nGROUP BY f.ciclo\nORDER BY f.ciclo;\n",
+   "datos": "01_resumen.json"
+  },
+  {
+   "consulta": "02_municipios.duck.sql",
+   "motor": "duck",
+   "filas": 2469,
+   "columnas": [
+    "cvemun",
+    "entidad",
+    "municipio",
+    "pobtot",
+    "lat",
+    "lon",
+    "irs",
+    "grado"
+   ],
+   "sha256_consulta": "aa7b5e927ed1f8235a405817a8ad37bc9a20af8213b83841e56ce8c2bada85bf",
+   "sha256_datos": "25dcf9bb86068cc1fa28b111dcc3925aacd495496775151897ab65cf734140cb",
+   "sql": "-- Los municipios del Censo 2020 en el punto de su cabecera (la localidad 0001 de ITER), con su\n-- población y el rezago social de CONEVAL 2020. El lago no tiene polígonos municipales, así\n-- que el mapa dibuja un punto por municipio.\nSELECT m.cvemun, m.entidad, m.municipio, m.pobtot,\n       round(l.lat, 4) AS lat, round(l.lon, 4) AS lon,\n       r.irs, r.grado\nFROM plata_municipios m\nLEFT JOIN plata_localidades l ON l.cvegeo = m.cvemun || '0001'\nLEFT JOIN plata_rezago_municipal r ON r.cvemun = m.cvemun\nORDER BY m.cvemun;\n",
+   "datos": "02_municipios.json"
+  },
+  {
+   "consulta": "03_municipio_ciclo.pg.sql",
+   "motor": "pg",
+   "filas": 14579,
+   "columnas": [
+    "cvemun",
+    "ciclo",
+    "proyectos",
+    "aprobado",
+    "pagado",
+    "pagado_hab",
+    "fais",
+    "evaluados",
+    "c1",
+    "c2",
+    "c3",
+    "c4"
+   ],
+   "sha256_consulta": "caa24d66e213c3a1d4ba35330eef05e2c13a410e0ba5d09822a3b99116da4071",
+   "sha256_datos": "c2aaeab3905fb820245fdaf5ed6e4483d9721542b732c8c809d60276dd60e806",
+   "sql": "-- Por municipio y ciclo: proyectos, montos y cuántos marca cada criterio. El pago por\n-- habitante divide entre la población de 2020. `evaluados` cuenta los proyectos de inversión,\n-- los únicos a los que se aplican los criterios.\nSELECT m.cvemun, f.ciclo,\n       count(*) AS proyectos,\n       sum(f.aprobado) AS aprobado,\n       sum(f.pagado) AS pagado,\n       round(sum(f.pagado) / nullif(m.pobtot, 0), 2) AS pagado_hab,\n       count(*) FILTER (WHERE f.es_fais) AS fais,\n       count(*) FILTER (WHERE f.c1_tipo IS NOT NULL) AS evaluados,\n       count(*) FILTER (WHERE f.c1_tipo) AS c1,\n       count(*) FILTER (WHERE f.c2) AS c2,\n       count(*) FILTER (WHERE f.c3) AS c3,\n       count(*) FILTER (WHERE f.c4) AS c4\nFROM warehouse.fact_proyecto_ciclo f\nJOIN warehouse.dim_municipio m USING (municipio_key)\nGROUP BY m.cvemun, m.pobtot, f.ciclo\nORDER BY m.cvemun, f.ciclo;\n",
+   "datos": "03_municipio_ciclo.json"
+  },
+  {
+   "consulta": "04_cruce_cngmd_2022.duck.sql",
+   "motor": "duck",
+   "filas": 2469,
+   "columnas": [
+    "cvemun",
+    "contratos_cngmd",
+    "monto_cngmd",
+    "contratos_shcp",
+    "monto_shcp",
+    "relacion"
+   ],
+   "sha256_consulta": "a572ad73479910e3fb86e768e129e32edbca505eaa9ae10959d16f6d36d3d8ff",
+   "sha256_datos": "4c120ca89f89918446e59c1eb37082f9c86041a9a7ef1032b3e6ef161f3e5e81",
+   "sql": "-- Contratos de obra de 2022 según dos fuentes oficiales: lo que cada municipio declaró a INEGI\n-- en el CNGMD 2023 y lo que SHCP registra como contratos de obra convocados por un municipio.\n-- Una diferencia no prueba irregularidad: el CNGMD cubre todos los recursos del municipio y\n-- SHCP solo el gasto federalizado.\n-- monto_shcp suma una vez cada identificador por municipio, tomando su máximo\n-- monto informado si difiere entre folios; no representa gasto pagado acreditado.\nSELECT cvemun, contratos_cngmd, monto_cngmd, contratos_shcp, monto_shcp, relacion\nFROM oro_cruce_cngmd\nORDER BY cvemun;\n",
+   "datos": "04_cruce_cngmd_2022.json",
+   "actualizado_en": "2026-11-09 18:27 UTC"
+  },
+  {
+   "consulta": "05_puntos_2024.duck.sql",
+   "motor": "duck",
+   "filas": 253346,
+   "columnas": [
+    "id_entidad",
+    "folio",
+    "nombre",
+    "cvemun",
+    "g",
+    "marcas",
+    "evidencia",
+    "lat",
+    "lon"
+   ],
+   "sha256_consulta": "cdf803714aa8bb4a9544efcf165617ff2000a47624b73437b8d3cbb8d3377247",
+   "sha256_datos": "46af9806b1fa3043ad2c932fd7cb4998d9e43153eabaf43f03d0822357f26850",
+   "sql": "-- Proyectos de 2024 como puntos del mapa, un archivo por estado: lo que hace falta para\n-- dibujarlos, filtrarlos y buscarlos. g es el estatus (0 terminado, 1 en ejecución, 2 cancelado,\n-- 3 otro); marcas suma C1 = 1, C2 = 2, C3 = 4 y C4 = 8, y es nula si el proyecto no es de\n-- inversión; evidencia suma 1 si la dependencia publicó enlaces, 2 si alguno es PDF, 4 si alguno es\n-- una foto y 8 si empezó después de la primera versión del archivo de imágenes de Esri\n-- (2014-02-20), así que hay imagen de antes. Las marcas piden revisar; no prueban una irregularidad.\n-- particion: id_entidad\nWITH enlaces AS (\n    SELECT folio,\n           bool_or(regexp_matches(lower(e), '\\.pdf(\\?|$)')) AS pdf,\n           bool_or(regexp_matches(lower(e), '\\.(jpe?g|png|gif|webp)(\\?|$)')) AS foto\n    FROM (SELECT folio, trim(url) AS e FROM anexo_enlaces_contratos WHERE ciclo = 2024\n          UNION ALL\n          SELECT folio, trim(url_documento) FROM anexo_enlaces_contratos WHERE ciclo = 2024)\n    WHERE regexp_matches(e, '^https?://[^ ]+$') AND NOT contains(lower(e), '/personal/')\n    GROUP BY folio\n)\nSELECT o.id_entidad, o.folio, left(o.nombre, 120) AS nombre,\n       coalesce(o.cvemun, lpad(o.id_entidad::VARCHAR, 2, '0') || '000') AS cvemun,\n       CASE o.estatus WHEN 'Terminado' THEN 0 WHEN 'En Ejecución' THEN 1 WHEN 'Cancelado' THEN 2 ELSE 3 END AS g,\n       CASE WHEN a.c1_tipo IS NULL THEN NULL\n            ELSE a.c1_tipo::INT + 2 * a.c2::INT + 4 * a.c3::INT + 8 * a.c4::INT END AS marcas,\n       (e.folio IS NOT NULL)::INT + 2 * coalesce(e.pdf, false)::INT + 4 * coalesce(e.foto, false)::INT\n           + 8 * coalesce(o.fecha_inicio > DATE '2014-02-20', false)::INT AS evidencia,\n       round(o.lat, 5) AS lat, round(o.lon, 5) AS lon\nFROM oro_proyecto_ciclo o\nLEFT JOIN oro_alertas a ON a.folio = o.folio AND a.ciclo = o.ciclo\nLEFT JOIN enlaces e ON e.folio = o.folio\nWHERE o.ciclo = 2024 AND o.lat IS NOT NULL\nORDER BY o.id_entidad, o.folio;\n",
+   "datos": "05_puntos_2024/",
+   "particion": "id_entidad",
+   "archivos": 32
+  },
+  {
+   "consulta": "06_detalle_2024.duck.sql",
+   "motor": "duck",
+   "filas": 253346,
+   "columnas": [
+    "cvemun",
+    "folio",
+    "clasificacion",
+    "estatus",
+    "aprobado",
+    "pagado",
+    "pct_fisico",
+    "pct_financiero",
+    "n_contratos",
+    "fecha_inicio",
+    "fecha_termino",
+    "enlaces"
+   ],
+   "sha256_consulta": "4b14ff33467fc9b5a69008d8587719a2e3d49ac3d7652681a1591261b669fda1",
+   "sha256_datos": "a18841d99fe58e2cc6aab1d04587df5af9e745799437d8fe289cd9b5f9aaa9be",
+   "sql": "-- Detalle de los proyectos de 2024, un archivo por municipio, que el mapa baja al abrir un\n-- proyecto: montos, avances, fechas y los enlaces que la dependencia publicó en SHCP con sus\n-- contratos. Los enlaces se enseñan tal como los reportó; nadie revisó lo que contienen. Se\n-- omiten los de sitios personales de OneDrive (/personal/), porque su ruta lleva la cuenta de\n-- correo de quien los subió. No incluye nombres de contratistas.\n-- particion: cvemun\nWITH enlaces AS (\n    SELECT folio, list_sort(list_distinct(list(e))) AS enlaces\n    FROM (SELECT folio, trim(url) AS e FROM anexo_enlaces_contratos WHERE ciclo = 2024\n          UNION ALL\n          SELECT folio, trim(url_documento) FROM anexo_enlaces_contratos WHERE ciclo = 2024)\n    WHERE regexp_matches(e, '^https?://[^ ]+$') AND NOT contains(lower(e), '/personal/')\n    GROUP BY folio\n)\nSELECT coalesce(o.cvemun, lpad(o.id_entidad::VARCHAR, 2, '0') || '000') AS cvemun,\n       o.folio, o.clasificacion, o.estatus, o.aprobado, o.pagado, o.pct_fisico, o.pct_financiero,\n       o.n_contratos, o.fecha_inicio, o.fecha_termino, coalesce(e.enlaces, []) AS enlaces\nFROM oro_proyecto_ciclo o\nLEFT JOIN enlaces e ON e.folio = o.folio\nWHERE o.ciclo = 2024 AND o.lat IS NOT NULL\nORDER BY 1, o.folio;\n",
+   "datos": "06_detalle_2024/",
+   "particion": "cvemun",
+   "archivos": 2492
+  }
+ ],
+ "evidencia": {
+  "datos": "evidencia_lago.json",
+  "origen": "verificacion/evidencia_lago.json",
+  "sha256": "4c29de98eb38480a7fb4891f2b132de88240b7c3cf33a141038513c21e6ce612"
+ },
+ "copias": [
+  {
+   "datos": "evidencia_lago.json",
+   "origen": "verificacion/evidencia_lago.json",
+   "sha256": "4c29de98eb38480a7fb4891f2b132de88240b7c3cf33a141038513c21e6ce612"
+  },
+  {
+   "datos": "fuentes.json",
+   "origen": "fuentes.json",
+   "sha256": "ecb5dad09884fa21862a83b9a41c56f7a2d69b8597ec8a585a86893423fae1d8"
+  }
+ ]
+}

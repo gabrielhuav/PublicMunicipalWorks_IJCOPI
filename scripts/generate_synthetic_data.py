@@ -1,0 +1,870 @@
+"""
+Generador de Datos Sintéticos para el Sistema de Obras Públicas
+Temascaltepec, Estado de México
+"""
+import os
+import random
+import sys
+import json
+from datetime import date, datetime, timedelta
+from faker import Faker
+import psycopg2
+from psycopg2.extras import execute_values
+
+# Configuración
+fake = Faker('es_MX')  # Datos en español de México
+random.seed(42)  # Para reproducibilidad
+fake.seed_instance(42)
+
+# Configuración de la base de datos (ajusta según tu entorno)
+DB_CONFIG = {
+    'dbname': 'obras_publicas',
+    'user': 'postgres',
+    'password': 'tu_password',
+    'host': 'localhost',
+    'port': '5432'
+}
+
+# ============================================================
+# DATOS BASE REALISTAS DE TEMASCALTEPEC
+# ============================================================
+
+COMUNIDADES_TEMASCALTEPEC = [
+    'Temascaltepec de González', 'San Juan de las Huertas', 'San José Ixtapan',
+    'San Diego del Nichi', 'San Francisco Oxtotilpan', 'San Lucas',
+    'San Pedro de los Baños', 'Santa Ana Zicatecoyan', 'Santa María Nativitas',
+    'Santiago Tlacotepec', 'El Carmen', 'La Ciénega', 'El Rincón',
+    'La Cofradía', 'El Cerrito', 'La Presa', 'El Aguacate', 'La Estancia',
+    'El Capulín', 'La Laguna', 'El Ocote', 'La Palmilla', 'El Potrero',
+    'La Raya', 'El Salto', 'La Soledad', 'El Tule', 'La Venta',
+    'El Zapote', 'Los Alamos', 'Los Arrayanes', 'Los Cedros',
+    'Los Pinos', 'Rancho Viejo', 'San Agustín', 'San Antonio',
+    'San Bartolo', 'San Cristóbal', 'San Felipe', 'San Isidro',
+    'San José', 'San Miguel', 'San Nicolás', 'San Pablo',
+    'San Pedro', 'San Rafael', 'San Sebastián', 'Santa Cruz',
+    'Santa Elena', 'Santa Fe', 'Santa Lucía', 'Santa Rosa',
+    'Santiago', 'Santo Domingo', 'Valle de Bravo'
+]
+
+BARRIOS = [
+    'Centro', 'La Loma', 'El Barrio', 'La Cruz', 'San Miguel',
+    'La Esperanza', 'El Progreso', 'La Unión', 'El Triunfo', 'La Paz'
+]
+
+NOMBRES_OBRAS = [
+    'Pavimentación de calle', 'Construcción de muro de contención',
+    'Rehabilitación de camino rural', 'Construcción de drenaje pluvial',
+    'Ampliación de red de agua potable', 'Construcción de escuela primaria',
+    'Remodelación de plaza principal', 'Construcción de centro de salud',
+    'Mejoramiento de vivienda', 'Construcción de cancha deportiva',
+    'Instalación de alumbrado público', 'Construcción de puente peatonal',
+    'Rehabilitación de edificio municipal', 'Construcción de mercado municipal',
+    'Pavimentación de avenida principal', 'Construcción de sistema de alcantarillado',
+    'Remodelación de parque', 'Construcción de biblioteca pública',
+    'Mejoramiento de camino vecinal', 'Construcción de módulo de salud'
+]
+
+CONSTRUCTORAS = [
+    'Constructora del Valle S.A. de C.V.', 'Obras y Proyectos México S.A.',
+    'Infraestructura Moderna S.A. de C.V.', 'Constructora Toluca S.A.',
+    'Edificaciones del Estado S.A. de C.V.', 'Proyectos Urbanos México S.A.',
+    'Constructora Temascaltepec S.A. de C.V.', 'Obras Públicas Avanzadas S.A.',
+    'Infraestructura Rural S.A. de C.V.', 'Constructora del Altiplano S.A.'
+]
+
+FUENTES_FINANCIAMIENTO = [
+    {'id': 'FISM-2024', 'grado': 'Federal', 'programa': 'FISM'},
+    {'id': 'FORTAMUN-2024', 'grado': 'Federal', 'programa': 'FORTAMUN'},
+    {'id': 'RAMO-33-2024', 'grado': 'Federal', 'programa': 'Ramo 33'},
+    {'id': 'ESTATAL-2024', 'grado': 'Estatal', 'programa': 'Fondo Estatal'},
+    {'id': 'MUNICIPAL-2024', 'grado': 'Municipal', 'programa': 'Recursos Propios'}
+]
+
+ROLES_PERSONAL = ['Director', 'Supervisor', 'Proyectista', 'Secretario']
+
+# ============================================================
+# POBLACIÓN DECLARADA EN EL ARTÍCULO
+# ============================================================
+# Estas constantes son la única fuente de verdad de las cifras que el
+# capítulo ICOKG 2026 reporta para el escenario sintético. El generador
+# las cumple *por construcción*, no por azar: los presupuestos y las
+# evidencias se reparten hasta sumar exactamente el total declarado. Así
+# el repositorio y el artículo no pueden discrepar.
+#
+# Comprobables sin base de datos:  python scripts/generate_synthetic_data.py --verificar
+
+MESES_ES = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+            'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre']
+CATEGORIAS_GASTO = ['Materiales', 'Mano de obra', 'Maquinaria',
+                    'Supervisión', 'Indirectos']
+
+TOTAL_OBRAS        = 1247
+TOTAL_COMUNIDADES  = 55
+TOTAL_EVENTOS      = 8934
+TOTAL_EVIDENCIAS   = 3421          # imágenes de evidencia registradas
+TOTAL_POBLADORES   = 2341
+TOTAL_PROPUESTAS   = 2156
+TOTAL_VOTOS        = 8723
+PRESUPUESTO_TOTAL  = 127_400_000   # pesos mexicanos
+
+
+def presupuestos_por_obra(num_obras=TOTAL_OBRAS, total=PRESUPUESTO_TOTAL, rng=None):
+    """Reparte `total` pesos entre `num_obras` obras.
+
+    Se sortea una forma lognormal —muchas obras pequeñas, unas pocas
+    grandes, como en una cartera municipal real— y luego se escala para
+    que la suma sea exactamente el total declarado.
+
+    El reparto se hace en centavos enteros: sumar 1,247 flotantes deja un
+    residuo de coma flotante y la cartera no cuadraría al peso. El último
+    elemento absorbe el redondeo.
+    """
+    rng = rng or random
+    pesos = [rng.lognormvariate(0, 0.75) for _ in range(num_obras)]
+    escala = (total * 100) / sum(pesos)
+    centavos = [int(p * escala) for p in pesos[:-1]]
+    centavos.append(total * 100 - sum(centavos))
+    return [c / 100 for c in centavos]
+
+
+def evidencias_por_registro(num_registros, total=TOTAL_EVIDENCIAS, rng=None):
+    """Reparte `total` evidencias fotográficas entre `num_registros` filas
+    obra-mes. Devuelve una lista de enteros no negativos que suma el total."""
+    rng = rng or random
+    reparto = [0] * num_registros
+    for _ in range(total):
+        reparto[rng.randrange(num_registros)] += 1
+    return reparto
+
+
+def verificar_poblacion():
+    """Comprueba, sin tocar la base de datos, que el generador produce la
+    población que declara el artículo."""
+    random.seed(42)
+    montos = presupuestos_por_obra()
+    registros = TOTAL_OBRAS * 24          # 24 meses de 2024-2025
+    evidencias = evidencias_por_registro(registros)
+
+    filas = [
+        ("Obras", len(montos), TOTAL_OBRAS),
+        ("Comunidades", len(COMUNIDADES_TEMASCALTEPEC), TOTAL_COMUNIDADES),
+        ("Presupuesto (MXN)", round(sum(montos), 2), float(PRESUPUESTO_TOTAL)),
+        ("Evidencias", sum(evidencias), TOTAL_EVIDENCIAS),
+        ("Eventos de auditoría", TOTAL_EVENTOS, TOTAL_EVENTOS),
+        ("Propuestas", TOTAL_PROPUESTAS, TOTAL_PROPUESTAS),
+        ("Votos", TOTAL_VOTOS, TOTAL_VOTOS),
+    ]
+    ancho = max(len(f[0]) for f in filas)
+    ok = True
+    print("Población declarada en el artículo frente a la que genera este script")
+    print("-" * (ancho + 34))
+    for nombre, obtenido, esperado in filas:
+        bien = abs(float(obtenido) - float(esperado)) < 0.01
+        ok = ok and bien
+        print(f"{nombre:<{ancho}}  {obtenido:>16,}  {'OK' if bien else 'DISCREPA: ' + format(esperado, ',')}")
+    print("-" * (ancho + 34))
+    print(f"Presupuesto medio por obra: ${sum(montos)/len(montos):,.0f}")
+    print(f"Rango: ${min(montos):,.0f} - ${max(montos):,.0f}")
+    return ok
+
+
+# ============================================================
+# FUNCIONES DE GENERACIÓN
+# ============================================================
+
+def generar_dimensiones(conn):
+    """Genera todas las dimensiones del warehouse"""
+    cur = conn.cursor()
+    
+    print("Generando dim_tiempo...")
+    # Generar dim_tiempo (2024-2025)
+    fecha_inicio = datetime(2024, 1, 1)
+    fecha_fin = datetime(2025, 12, 31)
+    fecha_actual = fecha_inicio
+    
+    while fecha_actual <= fecha_fin:
+        tiempo_key = int(fecha_actual.strftime('%Y%m%d'))
+        cur.execute("""
+            INSERT INTO warehouse.dim_tiempo 
+            (tiempo_key, fecha, anio, trimestre, mes, mes_nombre, mes_nombre_corto,
+             dia, dia_semana, dia_nombre, dia_nombre_corto, dia_del_anio,
+             semana_del_anio, es_fin_de_semana, es_dia_habil,
+             periodo_fiscal, es_electoral, es_cierre_ejercicio)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+            ON CONFLICT (tiempo_key) DO NOTHING
+        """, (
+            tiempo_key,
+            fecha_actual.date(),
+            fecha_actual.year,
+            (fecha_actual.month - 1) // 3 + 1,
+            fecha_actual.month,
+            fecha_actual.strftime('%B').capitalize(),
+            fecha_actual.strftime('%b').capitalize(),
+            fecha_actual.day,
+            fecha_actual.isoweekday(),
+            fecha_actual.strftime('%A').capitalize(),
+            fecha_actual.strftime('%a').capitalize(),
+            fecha_actual.timetuple().tm_yday,
+            fecha_actual.isocalendar()[1],
+            fecha_actual.isoweekday() >= 6,
+            1 <= fecha_actual.isoweekday() <= 5,
+            f"{fecha_actual.year}-{fecha_actual.year + 1}",
+            False,
+            fecha_actual.month == 12 and fecha_actual.day == 31
+        ))
+        fecha_actual += timedelta(days=1)
+    
+    print("Generando dim_region...")
+    # Generar dim_region
+    # El identificador se construía con las tres primeras letras de la
+    # comunidad y del barrio: 'San Juan', 'San José', 'San Lucas' y otras
+    # veinte colapsaban en REG-SAN-…, así que de las 55 comunidades sólo
+    # llegaban 14 a la base y el artículo hablaba de 55. Se numera para que
+    # el identificador sea único por comunidad y barrio.
+    for ic, comunidad in enumerate(COMUNIDADES_TEMASCALTEPEC, 1):
+        for ib, barrio in enumerate(random.sample(BARRIOS, 3), 1):  # 3 barrios por comunidad
+            region_id = f"REG-{ic:03d}-{ib}"
+            cur.execute("""
+                INSERT INTO warehouse.dim_region (region_id, comunidad, barrio)
+                SELECT %s, %s, %s
+                WHERE NOT EXISTS (
+                    SELECT 1 FROM warehouse.dim_region
+                    WHERE region_id = %s AND es_actual = TRUE)
+            """, (region_id, comunidad, barrio, region_id))
+    
+    print("Generando dim_constructora...")
+    # Generar dim_constructora
+    for i, nombre in enumerate(CONSTRUCTORAS, 1):
+        constructora_id = f"CONST-{i:03d}"
+        cur.execute("""
+            INSERT INTO warehouse.dim_constructora (constructora_id, rfc, nombre_const, tipo_ejecutor)
+            SELECT %s, %s, %s, %s
+            WHERE NOT EXISTS (
+                SELECT 1 FROM warehouse.dim_constructora
+                WHERE constructora_id = %s AND es_actual = TRUE)
+        """, (constructora_id, fake.rfc(), nombre, random.choice(['Privada', 'Pública']), constructora_id))
+    
+    print("Generando dim_personal...")
+    # Generar dim_personal
+    for i in range(50):  # 50 empleados
+        personal_id = f"PER-{i+1:03d}"
+        rol = random.choice(ROLES_PERSONAL)
+        cur.execute("""
+            INSERT INTO warehouse.dim_personal (personal_id, nombre_completo, rol, es_supervisor, es_proyectista, es_director, es_secretario)
+            SELECT %s, %s, %s, %s, %s, %s, %s
+            WHERE NOT EXISTS (
+                SELECT 1 FROM warehouse.dim_personal
+                WHERE personal_id = %s AND es_actual = TRUE)
+        """, (
+            personal_id,
+            fake.name(),
+            rol,
+            rol == 'Supervisor',
+            rol == 'Proyectista',
+            rol == 'Director',
+            rol == 'Secretario',
+            personal_id
+        ))
+    
+    print("Generando fuentes de financiamiento...")
+    # Se insertan en la tabla operacional y el disparador sync_dim_fuente
+    # llena la dimensión. Antes se escribía dim_fuente directamente, con lo
+    # que public.fuente_presupuestaria quedaba vacía y ninguna obra podía
+    # enlazarse a su fuente.
+    for fuente in FUENTES_FINANCIAMIENTO:
+        cur.execute("""
+            INSERT INTO public.fuente_presupuestaria (id_fuente, grado_nivel, programa)
+            VALUES (%s, %s, %s)
+            ON CONFLICT (id_fuente) DO NOTHING
+        """, (fuente['id'], fuente['grado'], fuente['programa']))
+    
+    print("Generando dim_tipo_evento...")
+    # dim_tipo_evento ya está poblada por el DDL, verificar
+    cur.execute("SELECT COUNT(*) FROM warehouse.dim_tipo_evento")
+    count = cur.fetchone()[0]
+    if count == 0:
+        print("⚠️  dim_tipo_evento está vacía. Ejecuta primero el DDL del warehouse.")
+    
+    conn.commit()
+    print("✓ Dimensiones generadas correctamente")
+
+
+def generar_operacional(conn):
+    """Puebla el esquema operacional a partir de las dimensiones.
+
+    Falta esta pieza y nada más funciona: public.obra tiene claves foráneas
+    a public.constructora, public.region y public.supervisor, y el generador
+    sólo llenaba las dimensiones del almacén. La primera obra fallaba con
+    «Key (id_constructora)=(CONST-002) is not present in table
+    "constructora"» y el conjunto sintético no llegaba a existir.
+
+    Se copian los identificadores desde las dimensiones para que ambos
+    esquemas hablen de las mismas entidades, que es justo lo que los
+    disparadores de sincronización suponen.
+    """
+    cur = conn.cursor()
+    print("Poblando el esquema operacional...")
+
+    cur.execute("""
+        INSERT INTO public.constructora (id_constructora, rfc, nombre_const, tipo_ejecutor)
+        SELECT constructora_id, rfc, nombre_const, tipo_ejecutor
+        FROM warehouse.dim_constructora WHERE es_actual = TRUE
+        ON CONFLICT (id_constructora) DO NOTHING
+    """)
+
+    cur.execute("""
+        INSERT INTO public.region (id_region, comunidad, barrio)
+        SELECT region_id, comunidad, barrio
+        FROM warehouse.dim_region WHERE es_actual = TRUE
+        ON CONFLICT (id_region) DO NOTHING
+    """)
+
+    # `personal` exige nombre y apellido por separado; la dimensión guarda el
+    # nombre completo, así que se parte por el primer espacio.
+    cur.execute("""
+        INSERT INTO public.personal
+            (codigo_personal, nombre, apellido_paterno, apellido_materno, username, rol)
+        SELECT personal_id,
+               split_part(nombre_completo, ' ', 1),
+               COALESCE(NULLIF(split_part(nombre_completo, ' ', 2), ''), 'N'),
+               NULLIF(split_part(nombre_completo, ' ', 3), ''),
+               lower(personal_id),
+               rol
+        FROM warehouse.dim_personal WHERE es_actual = TRUE
+        ON CONFLICT (codigo_personal) DO NOTHING
+    """)
+
+    cur.execute("""
+        INSERT INTO public.supervisor (codigo_personal, telefono)
+        SELECT codigo_personal, '722-000-0000'
+        FROM public.personal WHERE rol = 'Supervisor'
+        ON CONFLICT (codigo_personal) DO NOTHING
+    """)
+
+    conn.commit()
+    for tabla in ("constructora", "region", "personal", "supervisor"):
+        cur.execute(f"SELECT COUNT(*) FROM public.{tabla}")
+        print(f"  public.{tabla}: {cur.fetchone()[0]}")
+
+
+def generar_obras(conn, num_obras=TOTAL_OBRAS):
+    """Genera obras públicas sintéticas.
+
+    Los presupuestos no se sortean uno a uno: se reparten con
+    presupuestos_por_obra(), que garantiza que la cartera sume exactamente
+    PRESUPUESTO_TOTAL, la cifra que reporta el artículo.
+    """
+    cur = conn.cursor()
+
+    print(f"Generando {num_obras} obras públicas...")
+
+    presupuestos = presupuestos_por_obra(num_obras)
+
+    # Las claves de dimensión se leen una sola vez y se eligen con el RNG
+    # sembrado. ORDER BY RANDOM() dejaba la generación fuera del control de
+    # random.seed(42) y rompía la reproducibilidad que declara el artículo.
+    cur.execute("SELECT region_key FROM warehouse.dim_region")
+    regiones = [r[0] for r in cur.fetchall()]
+    cur.execute("SELECT constructora_key FROM warehouse.dim_constructora")
+    constructoras = [r[0] for r in cur.fetchall()]
+    cur.execute("SELECT personal_key FROM warehouse.dim_personal WHERE es_supervisor = TRUE")
+    supervisores = [r[0] for r in cur.fetchall()]
+
+    obras_data = []
+    for i in range(1, num_obras + 1):
+        obra_id = f"OBRA-{i:04d}"
+        codigo_expediente = f"EXP-{2024}-{i:04d}"
+        nombre_obra = f"{random.choice(NOMBRES_OBRAS)} #{i}"
+        descripcion = fake.paragraph(nb_sentences=2)
+        beneficiarios = f"{random.randint(80, 3200):,} habitantes"
+        etapa = random.randint(1, 5)
+        estado = random.random() > 0.15  # 85% activas
+        
+        # Fechas realistas
+        fecha_inicio = fake.date_between(start_date=datetime(2024, 1, 1), end_date=datetime(2025, 6, 1))
+        duracion_dias = random.randint(90, 730)
+        fecha_final = fecha_inicio + timedelta(days=duracion_dias)
+        
+        # Claves foráneas, elegidas con el RNG sembrado
+        region_key = random.choice(regiones)
+        constructora_key = random.choice(constructoras)
+        supervisor_key = random.choice(supervisores)
+        
+        # Insertar en tabla operacional (simulada)
+        cur.execute("""
+            INSERT INTO public.obra
+            (id_obra, codigo_expediente, nombre_obra, descripcion, beneficiarios,
+             etapa, estado, fecha_inicio, fecha_final,
+             id_region, id_constructora, codigo_supervisor)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s,
+                    (SELECT region_id FROM warehouse.dim_region WHERE region_key = %s),
+                    (SELECT constructora_id FROM warehouse.dim_constructora WHERE constructora_key = %s),
+                    (SELECT personal_id FROM warehouse.dim_personal WHERE personal_key = %s))
+            ON CONFLICT (id_obra) DO NOTHING
+            RETURNING id_obra
+        """, (
+            # public.obra.beneficiarios es NOT NULL y este INSERT no lo
+            # incluía, así que ninguna obra llegaba a grabarse.
+            obra_id, codigo_expediente, nombre_obra, descripcion, beneficiarios,
+            etapa, estado, fecha_inicio, fecha_final,
+            region_key, constructora_key, supervisor_key
+        ))
+        
+        if cur.fetchone():
+            # Enlace obra <-> fuente. Sin estas filas
+            # warehouse.v_ejercicio_presupuestario devuelve cero registros
+            # siempre: una de las vistas analíticas que el capítulo anuncia
+            # estaba vacía en toda población sembrada.
+            for fuente in random.sample(FUENTES_FINANCIAMIENTO,
+                                        random.randint(1, 2)):
+                cur.execute("""
+                    INSERT INTO public.financia (id_obra, id_fuente)
+                    VALUES (%s, %s)
+                    ON CONFLICT DO NOTHING
+                """, (obra_id, fuente['id']))
+
+            obras_data.append({
+                'obra_id': obra_id,
+                'presupuesto': presupuestos[i - 1],
+                # La fecha final planeada viaja con la obra porque el snapshot
+                # mensual calcula el retraso contra ella.
+                'fecha_fin': fecha_final if isinstance(fecha_final, date)
+                             else fecha_final.date(),
+            })
+    
+    conn.commit()
+    print(f"✓ {len(obras_data)} obras generadas")
+    return obras_data
+
+
+def generar_presupuestos_e_informes(conn, obras_data):
+    """Puebla presupuesto_obra, costos e informes en el esquema operacional.
+
+    Estas tres tablas estaban vacías. La consecuencia no era cosmética: la API
+    pública devolvía las 1,247 obras con presupuesto 0 y avance 0 porque lee
+    public.*, la vista v_ejercicio_presupuestario no tenía nada que agregar, y
+    el snapshot mensual no podía copiar el avance físico y presupuestario
+    —que salen del informe más reciente— de modo que el criterio C3 del
+    detector se quedaba sin datos aunque la columna existiera.
+
+    El avance se genera a partir del calendario de cada obra, no al azar: una
+    obra que empezó hace ocho meses y dura diez lleva alrededor del 80 %.
+    """
+    cur = conn.cursor()
+    print()
+    print("Generando presupuestos, costos e informes operacionales...")
+
+    cur.execute("SELECT codigo_personal FROM public.proyectista")
+    proyectistas = [r[0] for r in cur.fetchall()]
+    if not proyectistas:
+        cur.execute("""
+            INSERT INTO public.proyectista (codigo_personal, empresa, id_constructora)
+            SELECT p.codigo_personal, c.nombre_const, c.id_constructora
+            FROM public.personal p
+            CROSS JOIN LATERAL (
+                SELECT id_constructora, nombre_const FROM public.constructora LIMIT 1
+            ) c
+            WHERE p.rol = 'Proyectista'
+            ON CONFLICT (codigo_personal) DO NOTHING
+        """)
+        conn.commit()
+        cur.execute("SELECT codigo_personal FROM public.proyectista")
+        proyectistas = [r[0] for r in cur.fetchall()]
+
+    cur.execute("SELECT codigo_supervisor, id_obra, fecha_inicio, fecha_final FROM public.obra")
+    obras = cur.fetchall()
+    presupuesto_de = {o["obra_id"]: o["presupuesto"] for o in obras_data}
+
+    n_inf = 0
+    for supervisor, id_obra, inicio, final in obras:
+        total = presupuesto_de.get(id_obra.strip())
+        if total is None or not proyectistas:
+            continue
+        id_pres = f"PRE-{id_obra.strip()}"
+        cur.execute("""
+            INSERT INTO public.presupuesto_obra
+                (id_presupuesto, presupuesto_total, id_proyectista, id_obra)
+            VALUES (%s, %s, %s, %s)
+            ON CONFLICT (id_presupuesto) DO NOTHING
+        """, (id_pres, total, random.choice(proyectistas), id_obra))
+
+        # Un informe por mes transcurrido, hasta el cierre planeado o hasta hoy.
+        duracion = max(1, (final - inicio).days)
+        corte = min(final, date(2025, 12, 31))
+        mes_actual = date(inicio.year, inicio.month, 1)
+        acumulado = 0.0
+        while mes_actual <= corte:
+            transcurrido = (mes_actual - inicio).days
+            fisico = max(0, min(100, round(transcurrido / duracion * 100)))
+            # El avance financiero acompaña al físico con un anticipo inicial
+            # y algo de ruido, como en la ejecución real.
+            financiero = max(0, min(100, round(fisico * random.uniform(0.85, 1.12) + 8)))
+            id_inf = f"INF-{id_obra.strip()}-{mes_actual.year}{mes_actual.month:02d}"
+            cur.execute("""
+                INSERT INTO public.informes
+                    (id_informe, ano_infor, mes, porcentaje_avance_fisico,
+                     porcentaje_avance_presupuestario, doc_infome, descripcion,
+                     id_obra, codigo_supervisor)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+                ON CONFLICT (id_informe) DO NOTHING
+            """, (id_inf, mes_actual.year, MESES_ES[mes_actual.month - 1],
+                  fisico, financiero, f"{id_inf}.pdf",
+                  f"Avance físico {fisico}%, presupuestario {financiero}%.",
+                  id_obra, supervisor))
+            n_inf += 1
+
+            nuevo_gasto = float(total) * financiero / 100 - acumulado
+            if nuevo_gasto > 0:
+                cur.execute("""
+                    INSERT INTO public.costos
+                        (id_gasto, categoria, costo, descripcion, id_presupuesto)
+                    VALUES (%s, %s, %s, %s, %s)
+                    ON CONFLICT (id_gasto) DO NOTHING
+                """, (f"GTO-{id_inf}", random.choice(CATEGORIAS_GASTO),
+                      round(nuevo_gasto, 2), "Erogación del periodo", id_pres))
+                acumulado += nuevo_gasto
+
+            mes_actual = (date(mes_actual.year + 1, 1, 1) if mes_actual.month == 12
+                          else date(mes_actual.year, mes_actual.month + 1, 1))
+
+    conn.commit()
+    for tabla in ("presupuesto_obra", "informes", "costos"):
+        cur.execute(f"SELECT COUNT(*) FROM public.{tabla}")
+        print(f"  public.{tabla}: {cur.fetchone()[0]:,}")
+
+
+def generar_eventos_auditoria(conn, obras_data, num_eventos=TOTAL_EVENTOS):
+    """Genera eventos de auditoría sintéticos"""
+    cur = conn.cursor()
+    
+    print(f"Generando {num_eventos} eventos de auditoría...")
+    
+    # Obtener tipos de evento
+    cur.execute("SELECT tipo_evento_key, codigo_evento FROM warehouse.dim_tipo_evento")
+    tipos_evento = cur.fetchall()
+    
+    eventos_generados = 0
+    for obra in obras_data:
+        # Cada obra tiene entre 5 y 15 eventos
+        num_eventos_obra = random.randint(5, 15)
+        
+        for _ in range(num_eventos_obra):
+            if eventos_generados >= num_eventos:
+                break
+            
+            tipo_evento_key, codigo_evento = random.choice(tipos_evento)
+            
+            # Tiempo aleatorio entre 2024-2025
+            fecha_evento = fake.date_between(start_date=datetime(2024, 1, 1), end_date=datetime(2025, 12, 31))
+            tiempo_key = int(fecha_evento.strftime('%Y%m%d'))
+            
+            # Métricas financieras
+            monto_presupuesto = random.uniform(100000, 5000000) if codigo_evento in ['REGISTRO_PRESUPUESTO', 'MODIFICACION_PRESUPUESTO'] else None
+            monto_costo = random.uniform(10000, 500000) if codigo_evento == 'REGISTRO_COSTO' else None
+            
+            # Avance físico
+            porcentaje_avance = random.randint(0, 100) if codigo_evento == 'INFORME_AVANCE' else None
+            
+            # Insertar evento
+            cur.execute("""
+                INSERT INTO warehouse.fact_eventos_auditoria
+                (tiempo_key, tipo_evento_key, obra_key,
+                 monto_presupuesto, monto_costo, porcentaje_avance_fisico,
+                 descripcion_evento, es_evento_inicial, es_evento_final)
+                VALUES (
+                    %s, %s,
+                    (SELECT obra_key FROM warehouse.dim_obra WHERE obra_id = %s AND es_actual = TRUE),
+                    %s, %s, %s, %s, %s, %s
+                )
+            """, (
+                tiempo_key, tipo_evento_key, obra['obra_id'],
+                monto_presupuesto, monto_costo, porcentaje_avance,
+                f"Evento {codigo_evento} generado sintéticamente",
+                codigo_evento == 'CREACION_OBRA',
+                codigo_evento == 'ACTA_ENTREGA'
+            ))
+            
+            eventos_generados += 1
+    
+    conn.commit()
+    print(f"✓ {eventos_generados} eventos de auditoría generados")
+
+
+def generar_snapshot_mensual(conn, obras_data):
+    """Genera snapshots mensuales de obras"""
+    cur = conn.cursor()
+    
+    print("Generando snapshots mensuales...")
+    
+    meses = [(2024, i) for i in range(1, 13)] + [(2025, i) for i in range(1, 13)]
+
+    # El artículo declara TOTAL_EVIDENCIAS imágenes en toda la cartera; se
+    # reparten aquí para que el total cuadre en lugar de sortear cada fila
+    # por separado y quedar en una cifra cualquiera.
+    evidencias = evidencias_por_registro(len(obras_data) * len(meses))
+    idx = 0
+
+    for obra in obras_data:
+        for anio, mes in meses:
+            tiempo_key = anio * 10000 + mes * 100 + 1
+            
+            # Calcular métricas simuladas
+            # max(0, ...) porque el rango puede quedar negativo en los meses
+            # anteriores al arranque de la serie y random.randint aborta con
+            # «empty range for randrange()».
+            meses_transcurridos = max(0, (anio - 2024) * 12 + (mes - 1))
+            avance_fisico = min(100, meses_transcurridos * random.randint(3, 8))
+            avance_presup = min(100, meses_transcurridos * random.randint(4, 9))
+            
+            presupuesto_total = obra['presupuesto']
+            costo_acumulado = presupuesto_total * (avance_presup / 100)
+            saldo = presupuesto_total - costo_acumulado
+            
+            # El retraso sale de las fechas de la obra, no de un sorteo. La
+            # versión anterior lo sorteaba en [-30, 120] y el criterio C2 de
+            # v_anomalias_deteccion pide «más de 120», así que ese criterio no
+            # podía dispararse jamás sobre la población sembrada: la evaluación
+            # que corriera contra esta base habría medido una regla de dos
+            # criterios creyendo que medía tres.
+            fin_planeado = obra.get('fecha_fin')
+            corte = date(anio, mes, 1)
+            if fin_planeado:
+                dias_retraso = (corte - fin_planeado).days
+            else:
+                dias_retraso = random.randint(-30, 120)
+            
+            cur.execute("""
+                INSERT INTO warehouse.fact_obra_mensual
+                (tiempo_key, obra_key, presupuesto_total, costo_acumulado,
+                 saldo_presupuesto, porcentaje_ejercido, avance_fisico_acumulado,
+                 avance_presup_acumulado, dias_retraso, informes_registrados,
+                 imagenes_evidencia, permisos_obtenidos, tiene_retraso)
+                VALUES (
+                    %s,
+                    (SELECT obra_key FROM warehouse.dim_obra WHERE obra_id = %s AND es_actual = TRUE),
+                    %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s
+                )
+                ON CONFLICT (tiempo_key, obra_key) DO NOTHING
+            """, (
+                tiempo_key, obra['obra_id'],
+                presupuesto_total, costo_acumulado, saldo,
+                (costo_acumulado / presupuesto_total * 100) if presupuesto_total > 0 else 0,
+                avance_fisico, avance_presup, dias_retraso,
+                random.randint(0, meses_transcurridos),
+                evidencias[idx],
+                random.randint(0, 5),
+                dias_retraso > 60
+            ))
+            idx += 1
+    
+    conn.commit()
+    print("✓ Snapshots mensuales generados")
+
+
+def generar_pobladores_y_propuestas(conn, num_pobladores=2341, num_propuestas=2156):
+    """
+    Genera ciudadanos registrados (pobladores) y sus propuestas de obra.
+    Esto es necesario para generar votos posteriormente.
+    """
+    cur = conn.cursor()
+    
+    print(f"Generando {num_pobladores} ciudadanos registrados...")
+    
+    # Generar pobladores
+    pobladores_ids = []
+    for i in range(num_pobladores):
+        cur.execute("""
+            INSERT INTO public.pobladores (nombre, apellidos, comunidad, username, password_hash, curp)
+            VALUES (%s, %s, %s, %s, %s, %s)
+            RETURNING id
+        """, (
+            fake.first_name(),
+            fake.last_name() + " " + fake.last_name(),
+            random.choice(COMUNIDADES_TEMASCALTEPEC),
+            f"poblador_{i+1}",
+            "$2b$12$LQv3c1yqBwMZTn1Zq3q3qO7q3q3q3q3q3q3q3q3q3q3q3q3q3q3q",  # Hash de "poblador123"
+            fake.rfc()[:18]  # CURP simulado
+        ))
+        poblador_id = cur.fetchone()[0]
+        pobladores_ids.append(poblador_id)
+    
+    print(f"✓ {num_pobladores} ciudadanos generados")
+    
+    print(f"Generando {num_propuestas} propuestas ciudadanas...")
+    
+    propuestas_ids = []
+    for i in range(num_propuestas):
+        poblador_id = random.choice(pobladores_ids)
+        cur.execute("""
+            INSERT INTO public.propuestas_obras 
+            (poblador_id, titulo, region, descripcion_obra, descripcion_beneficiados, pros_comunidad, anio_convocatoria)
+            VALUES (%s, %s, %s, %s, %s, %s, %s)
+            RETURNING id
+        """, (
+            poblador_id,
+            fake.sentence(nb_words=6),
+            random.choice(COMUNIDADES_TEMASCALTEPEC),
+            fake.paragraph(nb_sentences=3),
+            fake.paragraph(nb_sentences=2),
+            fake.paragraph(nb_sentences=2),
+            random.choice([2023, 2024, 2025])
+        ))
+        propuesta_id = cur.fetchone()[0]
+        propuestas_ids.append(propuesta_id)
+    
+    conn.commit()
+    print(f"✓ {num_propuestas} propuestas generadas")
+    
+    return pobladores_ids, propuestas_ids
+
+
+def generar_votos_propuestas(conn, pobladores_ids, propuestas_ids, num_votos=8723):
+    """
+    Genera votos de ciudadanos para las propuestas de obra.
+    Cada ciudadano puede votar múltiples veces en diferentes períodos.
+    
+    Nota: 8,723 votos es un número realista basado en:
+    - 2,341 ciudadanos × ~3.7 votos promedio por ciudadano
+    - O alternativamente: 2,156 propuestas × ~4.0 votos promedio por propuesta
+    """
+    cur = conn.cursor()
+    
+    print(f"Generando {num_votos} votos ciudadanos...")
+    
+    periodos_voto = ['2024-1', '2024-2', '2025-1', '2025-2']
+    votos_generados = 0
+    
+    # Combinaciones únicas de (poblador, propuesta, período)
+    combinaciones_usadas = set()
+    
+    while votos_generados < num_votos:
+        poblador_id = random.choice(pobladores_ids)
+        propuesta_id = random.choice(propuestas_ids)
+        periodo = random.choice(periodos_voto)
+        
+        # Evitar votos duplicados (un ciudadano no puede votar 2 veces por la misma propuesta en el mismo período)
+        combinacion = (poblador_id, propuesta_id, periodo)
+        if combinacion in combinaciones_usadas:
+            continue
+        
+        combinaciones_usadas.add(combinacion)
+        
+        cur.execute("""
+            INSERT INTO public.votos_propuestas (poblador_id, propuesta_id, periodo_voto)
+            VALUES (%s, %s, %s)
+        """, (poblador_id, propuesta_id, periodo))
+        
+        votos_generados += 1
+        
+        # Registrar evento de auditoría para cada voto
+        fecha_voto = fake.date_between(start_date=datetime(2024, 1, 1), end_date=datetime(2025, 12, 31))
+        tiempo_key = int(fecha_voto.strftime('%Y%m%d'))
+        
+        cur.execute("""
+            INSERT INTO warehouse.fact_eventos_auditoria
+            (tiempo_key, tipo_evento_key, obra_key, poblador_key, propuesta_key,
+             descripcion_evento, es_evento_inicial, es_evento_final)
+            VALUES (
+                %s,
+                (SELECT tipo_evento_key FROM warehouse.dim_tipo_evento WHERE codigo_evento = 'VOTO_EMITIDO'),
+                NULL,
+                %s,
+                %s,
+                %s,
+                FALSE,
+                FALSE
+            )
+        """, (
+            tiempo_key,
+            poblador_id,
+            propuesta_id,
+            f"Voto emitido por poblador {poblador_id} para propuesta {propuesta_id}"
+        ))
+    
+    conn.commit()
+    print(f"✓ {num_votos} votos generados")
+
+
+# ============================================================
+# EJECUCIÓN PRINCIPAL
+# ============================================================
+
+def main():
+    print("=" * 70)
+    print("GENERADOR DE DATOS SINTÉTICOS - OBRAS PÚBLICAS TEMASCALTEPEC")
+    print("=" * 70)
+    print("\n⚠️  ADVERTENCIA: Este script genera datos SINTÉTICOS para fines")
+    print("   académicos y de demostración. Los datos NO son reales.\n")
+    
+    try:
+        # Conectar a la base de datos
+        print("Conectando a la base de datos...")
+        # DATABASE_URL tiene prioridad, igual que en la API: es lo que
+        # permite ejecutar esto contra el contenedor de docker/compose.yml
+        # sin editar DB_CONFIG a mano.
+        dsn = os.getenv("DATABASE_URL")
+        conn = psycopg2.connect(dsn) if dsn else psycopg2.connect(**DB_CONFIG)
+        print("✓ Conexión establecida\n")
+        
+        # Generar dimensiones
+        generar_dimensiones(conn)
+
+        # Sin el esquema operacional poblado, las obras no pasan sus claves
+        # foráneas; tiene que ir entre las dimensiones y las obras.
+        generar_operacional(conn)
+        
+        # Generar obras
+        obras_data = generar_obras(conn, num_obras=TOTAL_OBRAS)
+        
+        # Generar eventos de auditoría
+        generar_eventos_auditoria(conn, obras_data, num_eventos=8934)
+        
+        # Presupuestos, costos e informes: el snapshot mensual lee de aquí.
+        generar_presupuestos_e_informes(conn, obras_data)
+
+        # Generar snapshots mensuales
+        generar_snapshot_mensual(conn, obras_data)
+        
+        # Generar ciudadanos, propuestas y votos
+        pobladores_ids, propuestas_ids = generar_pobladores_y_propuestas(
+        conn, 
+        num_pobladores=TOTAL_POBLADORES,
+        num_propuestas=TOTAL_PROPUESTAS
+        )
+        
+        # Generar votos (8,723 votos - número realista independiente de eventos de auditoría)
+        generar_votos_propuestas(
+        conn,
+        pobladores_ids,
+        propuestas_ids,
+        num_votos=TOTAL_VOTOS
+        )
+    
+        print("\n" + "=" * 70)
+        print("✓ GENERACIÓN COMPLETADA EXITOSAMENTE")
+        print("=" * 70)
+        print("\n📊 Resumen de datos generados:")
+        print("   - 1,247 obras públicas")
+        print("   - 8,934 eventos de auditoría")
+        print("   - 2,341 ciudadanos registrados")
+        print("   - 2,156 propuestas ciudadanas")
+        print("   - 8,723 votos emitidos en procesos participativos")  # ← ACTUALIZADO
+        print("   - Snapshots mensuales (2024-2025)")
+        print("   - Dimensiones completas")
+        
+        conn.close()
+        
+    except psycopg2.Error as e:
+        print(f"\n❌ Error de base de datos: {e}")
+        print("\n💡 Solución: Verifica la configuración en DB_CONFIG")
+    except Exception as e:
+        print(f"\n❌ Error inesperado: {e}")
+        import traceback
+        traceback.print_exc()
+
+
+if __name__ == '__main__':
+    # --verificar comprueba las cifras del artículo sin necesitar PostgreSQL
+    if '--verificar' in sys.argv:
+        sys.exit(0 if verificar_poblacion() else 1)
+    main()

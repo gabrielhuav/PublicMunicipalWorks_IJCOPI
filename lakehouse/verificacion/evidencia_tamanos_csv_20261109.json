@@ -1,0 +1,244 @@
+{
+ "utc": "2026-11-10T05:34:56.222485+00:00",
+ "scope": "CSV read by plata.por_ciclo for definitive reports2020–2025; excludes other reporting periods and reference datasets.",
+ "method": "SHA256 of whole archives matches manifest; ZipInfo.file_size for uncompressed entries. No extraction, ETL or services.",
+ "results": [
+  {
+   "year": 2020,
+   "archive": "shcp/gasto_federalizado/ciclo=2020/ef2020.zip",
+   "bytes_archive": 213950594,
+   "sha256_archive": "bbbe4792bacad3d34067bfd9396d345fa9b1a7be1011d280d72dfcbc0e3e9bbc",
+   "manifest_match": true,
+   "CSV_entries": [
+    {
+     "name": "cuarto_trimestre_informe_definitivo/ef2020.csv",
+     "uncompressed_bytes": 652316217
+    },
+    {
+     "name": "cuarto_trimestre_informe_definitivo/contratos.csv",
+     "uncompressed_bytes": 47138472
+    },
+    {
+     "name": "cuarto_trimestre_informe_definitivo/georreferencias.csv",
+     "uncompressed_bytes": 122177506
+    },
+    {
+     "name": "cuarto_trimestre_informe_definitivo/fuentes_financiamiento.csv",
+     "uncompressed_bytes": 61034788
+    },
+    {
+     "name": "cuarto_trimestre_informe_definitivo/metas.csv",
+     "uncompressed_bytes": 29211362
+    },
+    {
+     "name": "cuarto_trimestre_informe_definitivo/avances_fisicos.csv",
+     "uncompressed_bytes": 27621022
+    },
+    {
+     "name": "cuarto_trimestre_informe_definitivo/observaciones_capturista.csv",
+     "uncompressed_bytes": 4106117
+    },
+    {
+     "name": "cuarto_trimestre_informe_definitivo/observaciones_revisor.csv",
+     "uncompressed_bytes": 22915382
+    }
+   ],
+   "raw_CSV_bytes": 966520866,
+   "recorded_evidence_CSV_bytes": 938899844,
+   "omitted_from_recorded_evidence_bytes": 27621022,
+   "source_url": "https://www.transparenciapresupuestaria.gob.mx/work/models/PTP/DatosAbiertos/Entidades_Federativas/2020/ef2020.zip"
+  },
+  {
+   "year": 2021,
+   "archive": "shcp/gasto_federalizado/ciclo=2021/ef2021.zip",
+   "bytes_archive": 1556454258,
+   "sha256_archive": "6170b51d3df49f60e2b1a3ce28b2decd10370c028f267080343df6ceb0afd9c4",
+   "manifest_match": true,
+   "CSV_entries": [
+    {
+     "name": "ef2021/cuarto_trimestre_informe_definitivo/ef2021.csv",
+     "uncompressed_bytes": 174117674
+    },
+    {
+     "name": "ef2021/cuarto_trimestre_informe_definitivo/contratos.csv",
+     "uncompressed_bytes": 27847947
+    },
+    {
+     "name": "ef2021/cuarto_trimestre_informe_definitivo/georreferencias.csv",
+     "uncompressed_bytes": 92810291
+    },
+    {
+     "name": "ef2021/cuarto_trimestre_informe_definitivo/fuentes_financiamiento.csv",
+     "uncompressed_bytes": 50099865
+    },
+    {
+     "name": "ef2021/cuarto_trimestre_informe_definitivo/metas_avances.csv",
+     "uncompressed_bytes": 24107303
+    },
+    {
+     "name": "ef2021/cuarto_trimestre_informe_definitivo/observaciones.csv",
+     "uncompressed_bytes": 44979802
+    }
+   ],
+   "raw_CSV_bytes": 413962882,
+   "recorded_evidence_CSV_bytes": 413962882,
+   "omitted_from_recorded_evidence_bytes": 0,
+   "source_url": "https://www.transparenciapresupuestaria.gob.mx/work/models/PTP/DatosAbiertos/Entidades_Federativas/2021/ef2021.zip"
+  },
+  {
+   "year": 2022,
+   "archive": "shcp/gasto_federalizado/ciclo=2022/ef2022.zip",
+   "bytes_archive": 103837470,
+   "sha256_archive": "812ce8960096c8c80e4a8b496e0bfd84779f28bb6dddda909318c195f7b54b56",
+   "manifest_match": true,
+   "CSV_entries": [
+    {
+     "name": "ef2022/cuarto_informe_definitivo/ef2022.csv",
+     "uncompressed_bytes": 160873495
+    },
+    {
+     "name": "ef2022/cuarto_informe_definitivo/contratos.csv",
+     "uncompressed_bytes": 22213402
+    },
+    {
+     "name": "ef2022/cuarto_informe_definitivo/georreferencias.csv",
+     "uncompressed_bytes": 80609059
+    },
+    {
+     "name": "ef2022/cuarto_informe_definitivo/fuentes_financiamiento.csv",
+     "uncompressed_bytes": 44014850
+    },
+    {
+     "name": "ef2022/cuarto_informe_definitivo/metas_avances.csv",
+     "uncompressed_bytes": 21063156
+    },
+    {
+     "name": "ef2022/cuarto_informe_definitivo/observaciones.csv",
+     "uncompressed_bytes": 63797328
+    }
+   ],
+   "raw_CSV_bytes": 392571290,
+   "recorded_evidence_CSV_bytes": 392571290,
+   "omitted_from_recorded_evidence_bytes": 0,
+   "source_url": "https://www.transparenciapresupuestaria.gob.mx/work/models/PTP/DatosAbiertos/Entidades_Federativas/2022/ef2022.zip"
+  },
+  {
+   "year": 2023,
+   "archive": "shcp/gasto_federalizado/ciclo=2023/ef2023.zip",
+   "bytes_archive": 139189201,
+   "sha256_archive": "354f2a4a8560b0bef3b3718be7bc0d8a2efbd46c1111f94d0b50e25055de1df9",
+   "manifest_match": true,
+   "CSV_entries": [
+    {
+     "name": "ef2023/cuarto_informe_definitivo/ef2023.csv",
+     "uncompressed_bytes": 157896617
+    },
+    {
+     "name": "ef2023/cuarto_informe_definitivo/contratos.csv",
+     "uncompressed_bytes": 127033801
+    },
+    {
+     "name": "ef2023/cuarto_informe_definitivo/georreferencias.csv",
+     "uncompressed_bytes": 85617702
+    },
+    {
+     "name": "ef2023/cuarto_informe_definitivo/fuentes_financiamiento.csv",
+     "uncompressed_bytes": 42482793
+    },
+    {
+     "name": "ef2023/cuarto_informe_definitivo/metas_avances.csv",
+     "uncompressed_bytes": 20438298
+    },
+    {
+     "name": "ef2023/cuarto_informe_definitivo/observaciones.csv",
+     "uncompressed_bytes": 71116526
+    }
+   ],
+   "raw_CSV_bytes": 504585737,
+   "recorded_evidence_CSV_bytes": 504585737,
+   "omitted_from_recorded_evidence_bytes": 0,
+   "source_url": "https://www.transparenciapresupuestaria.gob.mx/work/models/PTP/DatosAbiertos/Entidades_Federativas/2023/ef2023.zip"
+  },
+  {
+   "year": 2024,
+   "archive": "shcp/gasto_federalizado/ciclo=2024/ef2024.zip",
+   "bytes_archive": 58391226,
+   "sha256_archive": "63656106a607d59fcf74e92574a95ac46c44b2beef7d328acf4959e416f39c34",
+   "manifest_match": true,
+   "CSV_entries": [
+    {
+     "name": "ef2024/ef2024.csv",
+     "uncompressed_bytes": 107958762
+    },
+    {
+     "name": "ef2024/contratos.csv",
+     "uncompressed_bytes": 119691320
+    },
+    {
+     "name": "ef2024/georreferencias.csv",
+     "uncompressed_bytes": 77230057
+    },
+    {
+     "name": "ef2024/fuentes_financiamiento.csv",
+     "uncompressed_bytes": 29146804
+    },
+    {
+     "name": "ef2024/metas_avances.csv",
+     "uncompressed_bytes": 14303767
+    },
+    {
+     "name": "ef2024/observaciones.csv",
+     "uncompressed_bytes": 47697964
+    }
+   ],
+   "raw_CSV_bytes": 396028674,
+   "recorded_evidence_CSV_bytes": 396028674,
+   "omitted_from_recorded_evidence_bytes": 0,
+   "source_url": "https://www.transparenciapresupuestaria.gob.mx/work/models/PTP/DatosAbiertos/Entidades_Federativas/2024/ef2024.zip"
+  },
+  {
+   "year": 2025,
+   "archive": "shcp/gasto_federalizado/ciclo=2025/ef2025.zip",
+   "bytes_archive": 23653848,
+   "sha256_archive": "8ea8f91a96760332697a4ef4d1d7c0bd74a919c20fe1a9a58c9eb5bb9b765c2e",
+   "manifest_match": true,
+   "CSV_entries": [
+    {
+     "name": "ef2025.csv",
+     "uncompressed_bytes": 39071464
+    },
+    {
+     "name": "contratos.csv",
+     "uncompressed_bytes": 45191264
+    },
+    {
+     "name": "georreferencias.csv",
+     "uncompressed_bytes": 27760924
+    },
+    {
+     "name": "fuentes_financiamiento.csv",
+     "uncompressed_bytes": 10535258
+    },
+    {
+     "name": "metas_avances.csv",
+     "uncompressed_bytes": 5489344
+    },
+    {
+     "name": "observaciones.csv",
+     "uncompressed_bytes": 28854963
+    }
+   ],
+   "raw_CSV_bytes": 156903217,
+   "recorded_evidence_CSV_bytes": 156903217,
+   "omitted_from_recorded_evidence_bytes": 0,
+   "source_url": "https://www.transparenciapresupuestaria.gob.mx/work/models/PTP/DatosAbiertos/Entidades_Federativas/2025/ef2025.zip"
+  }
+ ],
+ "total_raw_CSV_bytes": 2830572666,
+ "total_raw_CSV_MB_decimal": 2830.572666,
+ "total_recorded_evidence_CSV_bytes": 2802951644,
+ "total_recorded_evidence_CSV_MB_decimal": 2802.951644,
+ "omitted_bytes": 27621022,
+ "omission": "2020/cuarto_trimestre_informe_definitivo/avances_fisicos.csv: ev2 bytes not retained in plata.py.",
+ "historical_files_modified": false
+}

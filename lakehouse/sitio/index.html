@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="es" data-tema="guinda">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Obra pública federalizada</title>
+    <meta name="description" content="Mapa del lago de datos de obra pública federalizada en México, 2020-2025, con datos oficiales de SHCP, INEGI y CONEVAL. Cada capa es el resultado de una consulta a la base de datos.">
+    <link rel="stylesheet" href="vendor/leaflet-1.9.4.css">
+    <link rel="stylesheet" href="sitio.css?v=20261109-estados">
+    <script src="comun.js?v=20261109-final"></script>
+<script defer src="revision.js"></script>
+</head>
+<body class="app">
+<header class="barra">
+    <a class="marca" href="./"><span class="marca__sello" aria-hidden="true"></span><span class="marca__nombre" data-t="marca"></span></a>
+    <button type="button" class="boton-barra barra__abrir" id="abrirMenu" aria-expanded="false" aria-controls="menuBarra" data-t="menu"></button>
+    <div class="barra__menu" id="menuBarra">
+        <nav class="barra__nav" data-t-aria="nav.secciones">
+            <a href="./" aria-current="page" data-t="nav.mapa"></a>
+            <a href="consultas.html" data-t="nav.consultas"></a>
+            <a href="materiales.html" data-t="nav.repo"></a>
+        </nav>
+        <div class="barra__acciones">
+            <div class="segmentado" role="group" data-t-aria="tema.titulo">
+                <button type="button" data-tema-boton="guinda" data-t="tema.guinda"></button>
+                <button type="button" data-tema-boton="azul" data-t="tema.azul"></button>
+            </div>
+            <button type="button" class="boton-barra" id="modo"></button>
+            <button type="button" class="boton-barra" id="idioma"></button>
+        </div>
+    </div>
+</header>
+
+<main class="escena">
+    <div id="mapa" role="region" data-t-aria="mapa.region"></div>
+
+    <div class="buscador" role="search">
+        <span class="buscador__lupa" aria-hidden="true"></span>
+        <input type="search" id="buscar" autocomplete="off" spellcheck="false"
+               aria-autocomplete="list" aria-controls="sugerencias">
+        <ul id="sugerencias" class="sugerencias" role="listbox" hidden></ul>
+    </div>
+
+    <button type="button" id="abrirPanel" class="boton-flotante" aria-controls="panel" aria-expanded="false" data-t="panel.abrir"></button>
+
+    <aside id="panel" class="panel-lateral" data-t-aria="panel.abrir">
+        <div class="exploracion">
+        <p class="exploracion__ambito" data-t="panel.ambito"></p>
+        <div class="panel-lateral__cabecera">
+            <h1 data-t="panel.titulo"></h1>
+            <button type="button" id="cerrarPanel" class="cerrar" data-t-aria="panel.cerrar">×</button>
+        </div>
+        <p class="lema" data-t="panel.guia"></p>
+        </div>
+        <div class="exploracion__navegacion">
+        <div class="exploracion__meta"><span data-t="panel.vistas"></span><button type="button" id="vistaNacional" class="enlace-boton" data-t="panel.nacional"></button></div>
+        <div class="vistas" role="group" data-t-aria="panel.vistas">
+            <button type="button" id="vistaMunicipios" aria-controls="seccionMunicipios" aria-pressed="true" data-t="s.municipios"></button>
+            <button type="button" id="vistaProyectos" aria-controls="seccionProyectos" aria-pressed="false" data-t="s.proyectos"></button>
+        </div>
+        </div>
+
+        <section class="seccion" id="seccionProyectos" hidden>
+            <h2 data-t="s.proyectos"></h2>
+            <label for="estadoObras" data-t="c.estado"></label>
+            <select id="estadoObras"></select>
+            <p id="estadoObrasNota" class="nota" data-t="c.estado.nota"></p>
+            <p class="nota" data-t="c.proyectos.nota"></p>
+            <label class="opcion-mapa"><input type="checkbox" id="resumenesEstatus"><span data-t="agg.control"></span></label>
+            <p class="nota" data-t="agg.control.nota"></p>
+            <div id="estadoCargaProyectos" class="carga-proyectos" hidden>
+                <p id="textoCargaProyectos" role="status" aria-live="polite"></p>
+                <progress id="progresoProyectos" value="0" max="1" data-t-aria="s.proyectos"></progress>
+                <button type="button" id="reintentarProyectos" class="boton-secundario" data-t="c.reintentar" hidden></button>
+            </div>
+            <div id="filtros" hidden>
+                <div class="resultados">
+                    <p id="filtroConteo" class="conteo" role="status" aria-live="polite"></p>
+                    <div id="filtrosActivos" class="filtros-activos" data-t-aria="f.activos" role="group" hidden></div>
+                    <p id="sinResultados" class="nota" data-t="f.vacio" hidden></p>
+                    <div class="resultados__acciones">
+                        <button type="button" class="boton-principal" id="verFiltrados" data-t="f.ver" hidden></button>
+                        <button type="button" class="enlace-boton" id="restablecerFiltros" data-t="f.restablecer" hidden></button>
+                    </div>
+                </div>
+                <p class="subtitulo" data-t="f.estatus"></p>
+                <div id="filtrosEstatus" class="fichas"></div>
+                <details id="filtrosAdicionales" class="filtros-adicionales">
+                <summary data-t="f.mas"></summary>
+                <p class="subtitulo" data-t="f.evidencia"></p>
+                <div id="filtrosEvidencia" class="fichas"></div>
+                <p class="subtitulo" data-t="f.revision"></p>
+                <div class="fichas"><button type="button" id="soloMarcas" class="ficha" aria-pressed="false" data-t="f.marcas"></button></div>
+                <p class="nota" data-t="f.combinar"></p>
+                </details>
+                <p id="filtroUbicacion" class="nota" hidden></p>
+            </div>
+        </section>
+
+        <section class="seccion" id="seccionMunicipios">
+            <h2 data-t="s.municipios"></h2>
+            <label for="indicador" data-t="c.indicador"></label>
+            <select id="indicador"></select>
+            <label for="ciclo" data-t="c.ciclo"></label>
+            <select id="ciclo"></select>
+            <p id="notaIndicador" class="nota"></p>
+        </section>
+
+        <section class="seccion" id="referenciaGeografica">
+            <h2 data-t="lim.titulo"></h2>
+            <label class="opcion-mapa"><input type="checkbox" id="mostrarLimites" checked><span data-t="lim.control"></span></label>
+            <p class="nota" data-t="lim.nota"></p>
+        </section>
+
+        <section class="seccion" id="seccionLeyenda">
+            <h2 id="leyendaTitulo"></h2>
+            <div id="leyenda"></div>
+        </section>
+
+        <details class="seccion resumen-nacional">
+            <summary id="resumenNacional"></summary>
+            <ul class="conteos" id="conteos"></ul>
+            <button type="button" class="enlace-boton" id="temascaltepec" data-t="c.temascaltepec"></button>
+        </details>
+
+        <details class="seccion origen">
+            <summary data-t="o.titulo"></summary>
+            <div id="origen"></div>
+        </details>
+
+        <p class="aviso" data-t="aviso" data-html></p>
+    </aside>
+
+    <aside id="detalle" class="cajon" hidden aria-live="polite">
+        <button type="button" id="cerrarDetalle" class="cerrar" data-t-aria="d.cerrar">×</button>
+        <div id="detalleContenido"></div>
+    </aside>
+
+    <p id="cargando" class="cargando" role="status" hidden></p>
+    <div id="errorLimites" class="error-limites" role="status" hidden>
+        <span data-t="lim.error"></span>
+        <button type="button" id="reintentarLimites" class="enlace-boton" data-t="lim.reintentar"></button>
+    </div>
+</main>
+
+<div id="comparar" class="comparar" hidden role="dialog" aria-modal="true" aria-labelledby="compararTitulo">
+    <div class="comparar__caja">
+        <div class="comparar__cabecera">
+            <h2 id="compararTitulo"></h2>
+            <button type="button" id="cerrarComparar" class="cerrar" data-t-aria="cmp.cerrar">×</button>
+        </div>
+        <h3 class="comparar__seccion" data-t="cmp.satelite"></h3>
+        <div class="comparar__mapas comparar__satelite">
+            <figure><div id="mapaAntes" class="comparar__mapa"></div><figcaption></figcaption></figure>
+            <figure><div id="mapaAhora" class="comparar__mapa"></div><figcaption></figcaption></figure>
+        </div>
+        <p class="nota comparar__nota" data-t="cmp.nota"></p>
+        <div class="comparar__sv">
+            <h3 class="comparar__seccion" data-t="cmp.sv"></h3>
+            <div class="comparar__mapas" id="svMapas"></div>
+            <p class="nota" id="svNota"></p>
+        </div>
+    </div>
+</div>
+
+<script src="vendor/leaflet-1.9.4.js"></script>
+<script src="mapa-teselas.js?v=20261109-estados"></script>
+<script src="mapa.js?v=20261109-estados"></script>
+</body>
+</html>
