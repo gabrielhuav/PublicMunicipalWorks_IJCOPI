@@ -1,0 +1,2 @@
+// Static review JSON transport; generated from unchanged source bytes.
+window.__reviewJsonpLoad__("datos/06_detalle_2024/19040.json","{\"columnas\":[\"folio\",\"clasificacion\",\"estatus\",\"aprobado\",\"pagado\",\"pct_fisico\",\"pct_financiero\",\"n_contratos\",\"fecha_inicio\",\"fecha_termino\",\"enlaces\"],\"filas\":[[\"NLE240402468246\",\"Vivienda\",\"Terminado\",3249113,3249113,100.0,100.0,1,\"2024-04-23\",\"2024-11-19\",[\"http://sitiotransparenciaparas.gob.mx\"]]]}");

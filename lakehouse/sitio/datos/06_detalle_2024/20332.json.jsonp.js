@@ -1,0 +1,2 @@
+// Static review JSON transport; generated from unchanged source bytes.
+window.__reviewJsonpLoad__("datos/06_detalle_2024/20332.json","{\"columnas\":[\"folio\",\"clasificacion\",\"estatus\",\"aprobado\",\"pagado\",\"pct_fisico\",\"pct_financiero\",\"n_contratos\",\"fecha_inicio\",\"fecha_termino\",\"enlaces\"],\"filas\":[[\"OAX240302420993\",\"Otros Proyectos\",\"Terminado\",65176.38,0,100.0,0.0,1,\"2024-01-01\",\"2024-12-31\",[\"http://sisplade.oaxaca.gob.mx/sisplade2/contratos/332/710704/contrato%20de%20servicios.pdf\"]]]}");

@@ -1,0 +1,2 @@
+// Static review JSON transport; generated from unchanged source bytes.
+window.__reviewJsonpLoad__("datos/06_detalle_2024/14075.json","{\"columnas\":[\"folio\",\"clasificacion\",\"estatus\",\"aprobado\",\"pagado\",\"pct_fisico\",\"pct_financiero\",\"n_contratos\",\"fecha_inicio\",\"fecha_termino\",\"enlaces\"],\"filas\":[[\"JAL240402499965\",\"Agua y saneamiento\",\"Terminado\",366456.4,366456.4,100.0,100.0,1,\"2024-12-02\",\"2024-12-28\",[\"https://www.facebook.com/Sanmarcosjal/\"]]]}");

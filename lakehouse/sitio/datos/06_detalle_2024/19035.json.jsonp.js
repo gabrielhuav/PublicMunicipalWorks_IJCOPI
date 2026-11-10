@@ -1,0 +1,2 @@
+// Static review JSON transport; generated from unchanged source bytes.
+window.__reviewJsonpLoad__("datos/06_detalle_2024/19035.json","{\"columnas\":[\"folio\",\"clasificacion\",\"estatus\",\"aprobado\",\"pagado\",\"pct_fisico\",\"pct_financiero\",\"n_contratos\",\"fecha_inicio\",\"fecha_termino\",\"enlaces\"],\"filas\":[[\"NLE240302419721\",\"Vivienda\",\"Terminado\",173493,173493,100.0,100.0,1,\"2024-07-31\",\"2024-10-31\",[\"http://melchorocamponl.com/\"]]]}");

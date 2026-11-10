@@ -1,0 +1,2 @@
+// Static review JSON transport; generated from unchanged source bytes.
+window.__reviewJsonpLoad__("datos/06_detalle_2024/12085.json","{\"columnas\":[\"folio\",\"clasificacion\",\"estatus\",\"aprobado\",\"pagado\",\"pct_fisico\",\"pct_financiero\",\"n_contratos\",\"fecha_inicio\",\"fecha_termino\",\"enlaces\"],\"filas\":[[\"GRO250202539354\",\"Agua y saneamiento\",\"En Ejecuci\u00f3n\",1889963.63,null,0.0,null,0,\"2025-06-02\",\"2025-07-31\",[]]]}");

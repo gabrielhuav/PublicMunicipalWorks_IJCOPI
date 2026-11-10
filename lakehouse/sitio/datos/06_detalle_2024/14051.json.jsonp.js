@@ -1,0 +1,2 @@
+// Static review JSON transport; generated from unchanged source bytes.
+window.__reviewJsonpLoad__("datos/06_detalle_2024/14051.json","{\"columnas\":[\"folio\",\"clasificacion\",\"estatus\",\"aprobado\",\"pagado\",\"pct_fisico\",\"pct_financiero\",\"n_contratos\",\"fecha_inicio\",\"fecha_termino\",\"enlaces\"],\"filas\":[[\"JAL240302429882\",\"Transportes y vialidades\",\"Terminado\",1601042.81,1601042.81,100.0,100.0,1,\"2024-05-17\",\"2024-08-17\",[\"https://juanacatlan.gob.mx/articulo-ocho.html\"]]]}");

@@ -1,0 +1,2 @@
+// Static review JSON transport; generated from unchanged source bytes.
+window.__reviewJsonpLoad__("datos/06_detalle_2024/14117.json","{\"columnas\":[\"folio\",\"clasificacion\",\"estatus\",\"aprobado\",\"pagado\",\"pct_fisico\",\"pct_financiero\",\"n_contratos\",\"fecha_inicio\",\"fecha_termino\",\"enlaces\"],\"filas\":[[\"JAL230402332175\",\"Transportes y vialidades\",\"Terminado\",52500,52658.82,100.0,100.3,1,\"2023-11-01\",\"2024-02-29\",[\"https://canadasdeobregon.jalisco.gob.mx/inicio\"]]]}");

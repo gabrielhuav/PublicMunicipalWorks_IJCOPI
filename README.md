@@ -37,3 +37,19 @@ credits and dataset/provider licence information are retained in `CREDITS.md` an
 the accompanying source files. Third-party map and library notices are unchanged.
 Manuscripts, editorial history and Git metadata are not included in this source
 snapshot.
+
+## Review-host data transport
+
+Some review hosts apply an opaque-origin CSP sandbox without same-origin access.
+For that environment, `scripts/preparar_jsonp_revision.py` builds deterministic
+`.jsonp.js` companions for the site's JSON and GeoJSON files. The original files,
+published hashes, query results and historical performance measurements remain
+unchanged. Rebuild companions after updating an original export.
+
+`revision.js` loads before the shared site code. Only on the review host or an
+opaque origin, local JSON GET requests use classic script companions allowed by
+the existing sandbox. Each caller receives a fresh JSON Response; concurrent
+requests share a cached load, with bounded retries and timeouts. A caller's abort
+does not cancel other consumers. Remote geocoding and imagery requests retain
+the browser's original fetch implementation. No permissions, credentials, CSP
+directives or CORS headers are added or weakened.
