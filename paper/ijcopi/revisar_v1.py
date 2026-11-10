@@ -138,6 +138,21 @@ def main():
     agency_nodes = [n for n in introduction._p.iter(qn("w:t")) if old_agency in (n.text or "")]
     assert len(agency_nodes) == 1
     agency_nodes[0].text = agency_nodes[0].text.replace(old_agency, new_agency)
+    # The template states that the editor adds running heads. Restore the frozen
+    # template header ("Author et al.", 18(1) 2027) instead of author-edited values.
+    template_header = Document(BytesIO(frozen_bytes)).sections[0].header._element
+    running_header = doc.sections[0].header._element
+    for child in list(running_header):
+        running_header.remove(child)
+    for child in template_header:
+        running_header.append(deepcopy(child))
+    assert text(running_header).startswith("Author et al.") and "18(1) 2027" in text(running_header)
+    # The modality query counts contract records per folio and year, not unique contracts.
+    modality = find(doc, "Across 1,465,856 investment project-years")
+    modality_nodes = [n for n in modality._p.iter(qn("w:t")) if "of the works contracts of 2023–2025" in (n.text or "")]
+    assert len(modality_nodes) == 1
+    modality_nodes[0].text = modality_nodes[0].text.replace(
+        "of the works contracts of 2023–2025", "of the works-contract records of 2023–2025")
     equations = len(doc.element.xpath(".//m:oMath"))
     assert equations == 7, equations
     assert FIGURE.is_file(), FIGURE

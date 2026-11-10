@@ -94,10 +94,10 @@ def variant_c(c):
     d.text(105, 404, "Warehouse", 30, TEAL, True)
     d.text(105, 439, "PostgreSQL", 30, TEAL)
     source_cards = [
-        (215, 380, "SHCP · 2020–2025", f"{c['reports']:,}", "project-report rows", "Federal expenditure"),
+        (215, 380, "SHCP · 2020–2025", f"{c['reports']:,}", "project-report rows", "Federally funded spending"),
         (610, 380, "INEGI · Census 2020", f"{c['localities']:,}", "localities", "Population context"),
         (1005, 380, "INEGI · CNGMD 2023", f"{c['categories']:,} records", "municipality × category", "2022 reference year"),
-        (1400, 380, "CONEVAL · 2020", f"{c['indices']:,}", "municipal index records", "Social lag"),
+        (1400, 380, "CONEVAL · 2020", f"{c['indices']:,}", "municipal index records", "Social deprivation"),
     ]
     for x, w, title, number, grain, detail in source_cards:
         d.rect(x, 13, w, 144, "white", "#B9CAD5")

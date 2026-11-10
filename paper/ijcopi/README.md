@@ -156,6 +156,18 @@ de la página 12. En esta comprobación previa a la publicación respondieron lo
 enlaces del capítulo de Springer y se conservaron los dos tags, sin fallos; el portal
 de `10.24275/AZC2026E1004` respondió HTTP 200.
 
+Revisión independiente local del 9 de noviembre (Claude Fable 5.2, sin commit ni push):
+se restituyó el encabezado corrido de la plantilla (`Author et al.`, `18(1) 2027`), que
+la plantilla reserva al editor; la Figura 4 rotula «Federally funded spending» y «Social
+deprivation», como el texto; y la Sección 9.3 dice «works-contract records», porque la
+consulta de modalidad cuenta registros por folio y ciclo, no contratos únicos. Se
+reprodujeron la Tabla 2 y la Sección 7.5 (semillas 42–51 y 52–61, diferencia máxima
+1e-16 frente a la evidencia) y pasaron las pruebas de `scripts/pruebas/vista_nacional.cjs`.
+Control con Microsoft Word: **15 páginas y 9,613 palabras** (40.46 %), cero palabras
+nuevas sin amarillo; SHA-256 del Word `9264ce34…623dbe`. PostgreSQL, SeaweedFS y los
+archivos de bronce no estaban disponibles: las cifras del lago se cotejaron con sus
+evidencias históricas, no se volvieron a medir.
+
 El generador histórico `paper/ijcopi/extender_v1.py` permanece en el repositorio
 original, pero su copia disponible precede las correcciones editoriales del 9 de
 noviembre. Para preservar esas correcciones, esta revisión se reproduce aquí con

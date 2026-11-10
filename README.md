@@ -12,7 +12,8 @@ Conference on Ontologies and Knowledge Graphs (ICOKG 2026)**, prepared for the s
 The current review manuscript and its frozen comparison base are in
 [`paper/ijcopi/`](paper/ijcopi/README.md). The current version is
 [`Paper37_IJCOPI_v1_extendida.docx`](paper/ijcopi/Paper37_IJCOPI_v1_extendida.docx).
-These Word files travel with a Git clone. Their generator remains in the original
+These Word files travel with a Git clone. The current revision is replayed by
+`paper/ijcopi/revisar_v1.py`; the historical generator remains in the original
 `PublicMunicipalWorks_DWH` project, on branch `ijcopi-obras`. They are not part of the Pages site.
 
 The conference version is unchanged in
